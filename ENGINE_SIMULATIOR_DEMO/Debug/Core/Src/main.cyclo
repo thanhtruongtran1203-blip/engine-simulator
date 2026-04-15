@@ -1,0 +1,10 @@
+../Core/Src/main.c:92:5:main	2
+../Core/Src/main.c:155:6:SystemClock_Config	3
+../Core/Src/main.c:195:13:MX_TIM1_Init	6
+../Core/Src/main.c:254:13:MX_USART1_UART_Init	2
+../Core/Src/main.c:287:13:MX_GPIO_Init	1
+../Core/Src/main.c:339:9:get_spark_advance	5
+../Core/Src/main.c:348:9:get_injection_advance	3
+../Core/Src/main.c:356:6:HAL_TIM_IC_CaptureCallback	18
+../Core/Src/main.c:459:6:HAL_GPIO_EXTI_Callback	3
+../Core/Src/main.c:476:6:Error_Handler	1
