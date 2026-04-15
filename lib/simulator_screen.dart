@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'data.dart';
 import 'engine_screen.dart';
-
 class SimulatorScreen extends StatelessWidget {
   final EngineConfig engine;
 

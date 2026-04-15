@@ -24,6 +24,12 @@ final brands = [
   Brand(name: "Hyundai", logo: "assets/hyundai.png"),
   Brand(name: "Kia", logo: "assets/kia.png"),
   Brand(name: "Mazda", logo: "assets/mazda.png"),
+  Brand(name: "BMW", logo: "assets/bmw.png"),
+  Brand(name: "Ford", logo: "assets/ford.png"),
+  Brand(name: "Mercedes", logo: "assets/mercedes.png"),
+  Brand(name: "VinFast", logo: "assets/vinfast.png"),
+  Brand(name: "Mitsubishi", logo: "assets/Mitsubishi.png"),
+  Brand(name: "Peugeot", logo: "assets/Peugeot.png"),
 ];
 
 // ================== ENGINE DATA ==================
@@ -112,5 +118,53 @@ final Map<String, List<EngineConfig>> engineData = {
     EngineConfig(name: "BP-ZE", type: "I4", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7000),
     EngineConfig(name: "13B Rotary", type: "Rotary", cylinders: 2, firingOrder: [1,2], rpmMax: 9000),
     EngineConfig(name: "20B Rotary", type: "Rotary", cylinders: 3, firingOrder: [1,2,3], rpmMax: 9000),
+  ],
+
+  "BMW": [
+    EngineConfig(name: "N20", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7000),
+    EngineConfig(name: "B48", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7000),
+    EngineConfig(name: "B58", type: "I6 Turbo", cylinders: 6, firingOrder: [1,5,3,6,2,4], rpmMax: 7000),
+    EngineConfig(name: "N52", type: "I6", cylinders: 6, firingOrder: [1,5,3,6,2,4], rpmMax: 6500),
+    EngineConfig(name: "S58", type: "I6 TwinTurbo", cylinders: 6, firingOrder: [1,5,3,6,2,4], rpmMax: 7200),
+  ],
+
+  "Ford": [
+    EngineConfig(name: "EcoBoost 1.5", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "EcoBoost 2.0", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "EcoBoost 2.3", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6800),
+    EngineConfig(name: "EcoBoost 3.5", type: "V6 TwinTurbo", cylinders: 6, firingOrder: [1,4,2,5,3,6], rpmMax: 6000),
+    EngineConfig(name: "PowerStroke 3.2", type: "I5 Diesel", cylinders: 5, firingOrder: [1,2,4,5,3], rpmMax: 4500),
+  ],
+
+  "Mercedes": [
+    EngineConfig(name: "M274", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "M282", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "M276", type: "V6", cylinders: 6, firingOrder: [1,4,2,5,3,6], rpmMax: 6500),
+    EngineConfig(name: "M139", type: "I4 AMG", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7200),
+    EngineConfig(name: "OM654", type: "I4 Diesel", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 5000),
+  ],
+
+  "Mitsubishi": [
+    EngineConfig(name: "4G63", type: "I4", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7000),
+    EngineConfig(name: "4B11", type: "I4", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7000),
+    EngineConfig(name: "4A91", type: "I4", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6000),
+    EngineConfig(name: "6G72", type: "V6", cylinders: 6, firingOrder: [1,4,2,5,3,6], rpmMax: 6000),
+    EngineConfig(name: "4N15", type: "I4 Diesel", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 4500),
+  ],
+
+  "Peugeot": [
+    EngineConfig(name: "TU5", type: "I4", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "EP6", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "DV6", type: "I4 Diesel", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 4500),
+    EngineConfig(name: "DW10", type: "I4 Diesel", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 4500),
+    EngineConfig(name: "EB2", type: "I3", cylinders: 3, firingOrder: [1,2,3], rpmMax: 6000),
+  ],
+
+  "VinFast": [
+    EngineConfig(name: "N20", type: "I4 Turbo", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 7000),
+    EngineConfig(name: "Fadil 1.4", type: "I4", cylinders: 4, firingOrder: [1,3,4,2], rpmMax: 6500),
+    EngineConfig(name: "VF e34 Motor", type: "Electric", cylinders: 0, firingOrder: [], rpmMax: 12000),
+    EngineConfig(name: "VF5 Motor", type: "Electric", cylinders: 0, firingOrder: [], rpmMax: 12000),
+    EngineConfig(name: "VF8 Motor", type: "Electric", cylinders: 0, firingOrder: [], rpmMax: 13000),
   ],
 };

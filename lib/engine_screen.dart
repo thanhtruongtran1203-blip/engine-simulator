@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'dart:async';
 import 'dart:math';
+import 'engine_3d_screen.dart';
 
 class EngineScreen extends StatefulWidget {
   const EngineScreen({super.key});
@@ -246,6 +248,33 @@ class _EngineScreenState extends State<EngineScreen>
       backgroundColor: const Color(0xFF0F172A),
       body: Stack(
         children: [
+          Positioned(
+            top: 40,
+            right: 20,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const Engine3DScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                  size: 15,
+                ),
+              ),
+            ),
+          ),
           /// TITLE TRÊN ĐẦU
           const Positioned(
             top: 40,
@@ -253,7 +282,7 @@ class _EngineScreenState extends State<EngineScreen>
             right: 0,
             child: Center(
               child: Text(
-                "ENGINE SIMULATOR",
+                "MÔ PHỎNG HOẠT ĐỘNG CỦA ĐỘNG CƠ",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -262,38 +291,60 @@ class _EngineScreenState extends State<EngineScreen>
             ),
           ),
           Positioned(
-            top: 90,
-            left: 0,
-            right: 0,
-            child: Center(
+            top: 250,
+            right: 70, // 👈 dính sát bên phải
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.4, // 👈 50% ngang
+              height: MediaQuery.of(context).size.height * 0.4, // 👈 50% cao
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF111827),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16),
+                ), // 👈 bo góc bên trái cho đẹp
+                border: Border.all(color: Colors.white24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.22),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Engine2DPreview(
+                crankAngle: crankAngle,
+                sparkCylinder: spark,
+                injectorCylinder: injector,
+                isRunning: isRunning,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 20,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context); // 👈 quay lại danh sách engine
+              },
               child: Container(
-                width: min(w * 0.92, 380.0),
-                height: 250,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF111827),
-                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.black.withOpacity(0.6),
+                  shape: BoxShape.circle,
                   border: Border.all(color: Colors.white24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.22),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
                 ),
-                child: Engine2DPreview(
-                  crankAngle: crankAngle,
-                  sparkCylinder: spark,
-                  injectorCylinder: injector,
-                  isRunning: isRunning,
+                child: const Icon(
+                  Icons.arrow_back, // 👈 mũi tên quay lại
+                  color: Colors.white,
+                  size: 15, // 👈 cùng size với nút 3D
                 ),
               ),
             ),
           ),
           /// Hệ thống phun xăng điện tử
           const Positioned(
-            top: 380,
+            top: 180,
             left: 0,
             right: 0,
             child: Center(
@@ -703,10 +754,10 @@ class _EngineScreenState extends State<EngineScreen>
           ),
           /// ẢNH EFI
           Positioned(
-            top: 360,
-            left: -12,
+            top: 80,
+            left: 0,
             child: SizedBox(
-              width: w * 1,
+              width: w * 0.5,
               child: Image.asset(
                 'assets/images/gasoline.png',
                 fit: BoxFit.contain,
@@ -2013,6 +2064,7 @@ class FourCylinderEnginePainter extends CustomPainter {
         required Paint darkMetal,
         required Paint crankMetal,
       }) {
+
     const chamberY = 58.0;
     const cylinderTop = 74.0;
     const cylinderBottom = 176.0;

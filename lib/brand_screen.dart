@@ -18,8 +18,9 @@ class BrandScreen extends StatelessWidget {
         itemCount: brands.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 1,
         ),
         itemBuilder: (context, index) {
           final brand = brands[index];
@@ -55,22 +56,11 @@ class BrandScreen extends StatelessWidget {
                     // 🔥 LOGO
                     Image.asset(
                       brand.logo,
-                      width: 90,
-                      height: 90,
+                      width: 350,
+                      height: 350,
                       fit: BoxFit.contain,
                     ),
-
                     const SizedBox(height: 12),
-
-                    // 🔤 TÊN HÃNG
-                    Text(
-                      brand.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
                   ],
                 ),
               ),
