@@ -1977,7 +1977,9 @@
         final Set<int> activeSparkCylinders;
         final int injectorCylinder;
         final bool isRunning;
-    
+        double get flowOffset =>
+            (DateTime.now().millisecondsSinceEpoch % 1000) / 1000;
+
         FourCylinderEnginePainter({
           required this.crankAngle,
           required this.activeSparkCylinders,
@@ -2188,32 +2190,35 @@
     
         List<Color> _flowColorsForPhase(double phase) {
           if (phase >= 0 && phase < 180) {
+            // 🔥 COMBUSTION (cháy)
             return const [
-              Color(0xFFFFF176),
-              Color(0xFFFF9800),
-              Color(0xFFE53935),
-              Color(0x88E53935),
+              Color(0xFFFFEB3B), // vàng sáng
+              Color(0xFFFF9800), // cam
+              Color(0xFFF44336), // đỏ
+              Color(0xCCB71C1C), // đỏ đậm (tăng độ sâu)
             ];
           }
-    
+
           if (phase >= 180 && phase < 360) {
+            // 💨 EXHAUST (khí xả)
             return const [
-              Color(0xAA424242),
-              Color(0xCC212121),
-              Color(0xDD000000),
-              Color(0x88000000),
+              Color(0xFF616161), // xám sáng hơn
+              Color(0xFF424242),
+              Color(0xFF212121),
+              Color(0xCC000000), // đậm hơn (khói rõ hơn)
             ];
           }
-    
+
           if (phase >= 360 && phase < 540) {
+            // 🌬 INTAKE (khí nạp)
             return const [
-              Color(0x6638BDF8),
-              Color(0x884FC3F7),
-              Color(0x5538BDF8),
-              Color(0x334FC3F7),
+              Color(0xFF38BDF8), // xanh sáng (rất rõ)
+              Color(0xFF0EA5E9), // xanh đậm hơn
+              Color(0xCC0284C7), // xanh sâu
+              Color(0x880284C7), // fade nhẹ
             ];
           }
-    
+
           return const [
             Color(0x66B0BEC5),
             Color(0x668D99AE),
@@ -2240,8 +2245,8 @@
     
           final intakeOpen = _phaseLiftWindow(phase, 360, 540);
           final exhaustOpen = _phaseLiftWindow(phase, 180, 360);
-    
-          const valveTopY = 30.0;
+          double wobble = sin(flowOffset * 2 * pi) * 2;
+          const valveTopY = 40.0;
           const seatBaseY = 74.0;
           const intakeColor = Color(0xFF38BDF8); // 🔵 xanh nạp
           const exhaustColor = Color(0xFFFFC107); // 🟡 vàng xả
@@ -2323,12 +2328,12 @@
           );
     
           canvas.drawCircle(
-            Offset(intakeX, 28+ camOffsetY + intakeOpen * 2),
+            Offset(intakeX, 42 + intakeOpen * 2),
             2.5,
             Paint()..color = const Color(0xFFBFC5CC),
           );
           canvas.drawCircle(
-            Offset(exhaustX, 28+ camOffsetY + exhaustOpen * 2),
+            Offset(exhaustX, 42 + exhaustOpen * 2),
             2.5,
             Paint()..color = const Color(0xFFBFC5CC),
           );
@@ -2350,137 +2355,165 @@
           );
     
           final flowColors = _flowColorsForPhase(phase);
-    
+
           Paint buildFlowPaint(Rect rect) {
+            double speed = 0.5 + (phase / 720) * 1.5;
+
             return Paint()
               ..shader = LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
+                begin: Alignment(-1 + flowOffset * speed, 0),
+                end: Alignment(1 + flowOffset * speed, 0),
                 colors: flowColors,
-                stops: const [0.0, 0.35, 0.72, 1.0],
+                stops: [0.0, 0.15, 0.5, 1.0]
               ).createShader(rect)
-              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.2);
+              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
           }
     
           const manifoldY = 64.0;
           const flowThickness = 10.0;
           const chamberTipY = 80.0;
           const chamberBottomY = 88.0;
-    
+
           if (phase >= 360 && phase < 540 && intakeOpen > 0.01) {
             final neckY = manifoldY + 3 + intakeOpen * 2.0;
-    
+
             final intakeFlow = Path()
               ..moveTo(centerX - 40, manifoldY)
               ..quadraticBezierTo(centerX - 30, manifoldY - 2, centerX - 20, manifoldY)
               ..lineTo(centerX - 10, manifoldY)
-    
+
               ..quadraticBezierTo(centerX - 18, manifoldY, intakeX - 5, manifoldY + 1)
               ..quadraticBezierTo(centerX - 8, manifoldY + 2, centerX - 5, neckY)
 
               ..quadraticBezierTo(centerX - 4, manifoldY + 12, centerX - 1, manifoldY + 16)
               ..quadraticBezierTo(centerX + 2, manifoldY + 22, centerX + 6, manifoldY + 28)
-              ..quadraticBezierTo(centerX + 8, manifoldY + 34, centerX + 6, chamberBottomY - 4)
-              ..quadraticBezierTo(centerX + 2, chamberBottomY, centerX - 4, chamberBottomY)
+              ..quadraticBezierTo(centerX + 6, chamberBottomY - 6, centerX + 2, chamberBottomY)
+              ..quadraticBezierTo(centerX - 2, chamberBottomY + 2, centerX - 8, chamberBottomY - 2)
               ..quadraticBezierTo(centerX, chamberBottomY + 1, centerX - 7, chamberTipY)
-    
+
               ..quadraticBezierTo(
                 centerX - 8,
                 manifoldY + flowThickness,
                 intakeX - 6,
                 manifoldY + flowThickness,
               )
-    
+
               ..quadraticBezierTo(
                 centerX - 18,
                 manifoldY + flowThickness,
                 centerX - 10,
                 manifoldY + flowThickness,
               )
-    
+
               ..lineTo(centerX - 20, manifoldY + flowThickness)
               ..close();
-    
+
             canvas.drawPath(
               intakeFlow,
               buildFlowPaint(Rect.fromLTWH(centerX - 64, manifoldY - 2, 68, 22)),
             );
+            drawFlowParticles(
+              canvas,
+              Rect.fromLTWH(centerX - 40, manifoldY - 5, 68, 22),
+              phase: phase,
+            );
           }
-    
+
           if (phase >= 540 && phase < 720) {
-            final compressionFlow = RRect.fromRectAndRadius(
-              Rect.fromLTWH(centerX - 16, 80, 32, 10),
-              const Radius.circular(6),
-            );
-    
-            canvas.drawRRect(
-              compressionFlow,
-              Paint()
-                ..shader = LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: flowColors,
-                  stops: const [0.0, 0.35, 0.72, 1.0],
-                ).createShader(Rect.fromLTWH(centerX - 16, 80, 32, 10))
-                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.5),
-            );
-          }
-    
-          if (phase >= 0 && phase < 180) {
-            final burnFlow = Path()
-              ..moveTo(centerX - 18, 75)
-              ..quadraticBezierTo(centerX - 18, 72, centerX, 74)
-              ..quadraticBezierTo(centerX + 12, 76, centerX + 18, 81)
-              ..quadraticBezierTo(centerX + 15, 89, centerX + 8, 92)
-              ..quadraticBezierTo(centerX, 94, centerX - 8, 92)
-              ..quadraticBezierTo(centerX - 15, 89, centerX - 18, 79)
+
+            double t = (phase - 540) / 180;
+
+            double compress = 1 - t * 0.4;
+            double w = 22 * compress;
+
+            final chamberFlow = Path()
+              ..moveTo(centerX - w, 86)
+              ..quadraticBezierTo(centerX + wobble - 10, 78, centerX+ wobble , 80)
+              ..quadraticBezierTo(centerX + wobble + 10, 78, centerX + wobble + w, 86)
+              ..quadraticBezierTo(centerX + wobble + w * 0.6, 96, centerX+ wobble , 100)
+              ..quadraticBezierTo(centerX + wobble - w * 0.6, 96, centerX + wobble - w, 86)
               ..close();
-    
+
+            final rect = Rect.fromLTWH(centerX + wobble - 22, 78, 44, 26);
+
+            canvas.drawPath(
+              chamberFlow,
+              Paint()
+                ..shader = RadialGradient(
+                  center: Alignment.center,
+                  radius: 0.8,
+                  colors: flowColors,
+                ).createShader(rect)
+                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+            );
+
+            drawFlowParticles(canvas, rect, phase: phase);
+          }
+
+          if (phase >= 0 && phase < 180) {
+
+            double t = phase / 180;
+
+            final burnFlow = Path()
+              ..moveTo(centerX, 78)
+              ..quadraticBezierTo(centerX + wobble + 14, 82, centerX + wobble + 10, 92)
+              ..quadraticBezierTo(centerX + wobble + 4, 100, centerX + wobble , 96)
+              ..quadraticBezierTo(centerX + wobble - 4, 100, centerX + wobble - 10, 92)
+              ..quadraticBezierTo(centerX + wobble - 14, 82, centerX + wobble , 78)
+              ..close();
+
+            final rect = Rect.fromLTWH(centerX - 18, 76, 36, 24);
+
             canvas.drawPath(
               burnFlow,
               Paint()
-                ..shader = LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: flowColors, 
-                    stops: [0.0, 0.2, 0.5, 1.0]
-                ).createShader(Rect.fromLTWH(centerX - 18, 76, 36, 18))
-                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+                ..shader = RadialGradient(
+                  colors: flowColors,
+                ).createShader(rect)
+                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
             );
+
+            drawFlowParticles(canvas, rect, phase: phase);
           }
-    
+
           if (phase >= 180 && phase < 360 && exhaustOpen > 0.01) {
             final neckY = manifoldY + 3 + exhaustOpen * 2.0;
-    
+
             final exhaustFlow = Path()
               ..moveTo(centerX - 2, chamberBottomY)
-              ..quadraticBezierTo(centerX + 1, chamberBottomY - 1, centerX + 6, neckY)
-              ..quadraticBezierTo(centerX + 10, manifoldY + 2, exhaustX + 7, manifoldY + 1)
-              ..quadraticBezierTo(centerX + 24, manifoldY, centerX + 36, manifoldY)
-              ..lineTo(centerX + 64, manifoldY)
-              ..lineTo(centerX + 64, manifoldY + flowThickness)
-              ..lineTo(centerX + 36, manifoldY + flowThickness)
+              ..quadraticBezierTo(centerX + wobble + 1, chamberBottomY - 1, centerX + wobble + 6, neckY)
+              ..quadraticBezierTo(centerX + wobble + 10, manifoldY + 2, exhaustX + 7, manifoldY + 1)
+              ..quadraticBezierTo(centerX + wobble + 24, manifoldY, centerX + wobble + 36, manifoldY)
+              ..lineTo(centerX + wobble + 64, manifoldY)
+              ..lineTo(centerX + wobble + 64, manifoldY + flowThickness)
+              ..lineTo(centerX + wobble + 36, manifoldY + flowThickness)
               ..quadraticBezierTo(
-                centerX + 24,
+                centerX + wobble + 24,
                 manifoldY + flowThickness,
                 exhaustX + 10,
                 manifoldY + flowThickness,
               )
               ..quadraticBezierTo(
-                centerX + 12,
+                centerX + wobble + 12,
                 manifoldY + flowThickness + 2,
-                centerX + 8,
+                centerX + wobble + 8,
                 chamberTipY,
               )
-              ..quadraticBezierTo(centerX + 2, chamberBottomY + 1, centerX - 2, chamberBottomY)
+              ..quadraticBezierTo(centerX + 2, chamberBottomY + 1, centerX + wobble - 2, chamberBottomY)
               ..close();
-    
+
             canvas.drawPath(
               exhaustFlow,
-              buildFlowPaint(Rect.fromLTWH(centerX - 2, manifoldY - 2, 66, 22)),
+              buildFlowPaint(Rect.fromLTWH(centerX + wobble - 2, manifoldY - 2, 66, 22)),
+            );
+
+            drawFlowParticles(
+              canvas,
+              Rect.fromLTWH(centerX + wobble - 10, manifoldY - 2, 66, 22),
+              phase: phase,
             );
           }
-    
+
           final coilBody = RRect.fromRectAndRadius(
             Rect.fromLTWH(centerX - 6, 39, 12, 16),
             const Radius.circular(4),
@@ -2535,7 +2568,7 @@
           canvas.drawRRect(connector, outline);
     
           if (sparkOn) {
-            final sparkCenter = Offset(centerX, 64);
+            final sparkCenter = Offset(centerX, 88);
     
             canvas.drawCircle(
               sparkCenter,
@@ -2578,7 +2611,41 @@
             );
           }
         }
-    
+        void drawFlowParticles(
+            Canvas canvas,
+            Rect bounds, {
+              required double phase,
+            }) {
+          for (int i = 0; i < 25; i++) {
+            double t = (i / 25 + flowOffset) % 1;
+
+            double x, y;
+
+            // 🔵 INTAKE (360–540)
+            if (phase >= 360 && phase < 540) {
+              x = bounds.left + bounds.width * t;
+              y = bounds.top + bounds.height * (0.6 - 0.3 * sin(t * pi));
+            }
+
+            // 💨 EXHAUST (180–360)
+            else if (phase >= 180 && phase < 360) {
+              x = bounds.right - bounds.width * t;
+              y = bounds.top + bounds.height * (0.4 + 0.3 * sin(t * pi));
+            }
+
+            // 🔥 COMBUSTION (0–180)
+            else if (phase >= 0 && phase < 180) {
+              x = bounds.center.dx + (t - 0.5) * bounds.width;
+              y = bounds.center.dy + (t - 0.5) * bounds.height;
+            }
+
+            // 🧊 COMPRESSION (540–720)
+            else {
+              x = bounds.left + bounds.width * t;
+              y = bounds.center.dy + (0.5 - t) * bounds.height * 0.5;
+            }
+          }
+        }
         void _drawPiston(
             Canvas canvas,
             Rect rect,
@@ -2759,12 +2826,12 @@
             Paint()..color = const Color(0xFF1B1E22),
           );
     
-          _drawGasState(
-            canvas,
-            boreRect: boreRect,
-            pistonRect: pistonRect,
-            phase: phase,
-          );
+          //_drawGasState(
+            //canvas,
+            //boreRect: boreRect,
+            //pistonRect: pistonRect,
+            //phase: phase,
+          //);
     
           _drawHeadAndValves(
             canvas,
