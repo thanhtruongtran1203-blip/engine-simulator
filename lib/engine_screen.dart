@@ -2363,7 +2363,7 @@
           }
     
           const manifoldY = 64.0;
-          const flowThickness = 9.0;
+          const flowThickness = 10.0;
           const chamberTipY = 80.0;
           const chamberBottomY = 88.0;
     
@@ -2371,13 +2371,17 @@
             final neckY = manifoldY + 3 + intakeOpen * 2.0;
     
             final intakeFlow = Path()
-              ..moveTo(centerX - 20, manifoldY)
+              ..moveTo(centerX - 40, manifoldY)
+              ..quadraticBezierTo(centerX - 30, manifoldY - 2, centerX - 20, manifoldY)
               ..lineTo(centerX - 10, manifoldY)
     
               ..quadraticBezierTo(centerX - 18, manifoldY, intakeX - 5, manifoldY + 1)
               ..quadraticBezierTo(centerX - 8, manifoldY + 2, centerX - 5, neckY)
-    
-              ..quadraticBezierTo(centerX - 1, manifoldY + 10, centerX + 2, chamberBottomY)
+
+              ..quadraticBezierTo(centerX - 4, manifoldY + 12, centerX - 1, manifoldY + 16)
+              ..quadraticBezierTo(centerX + 2, manifoldY + 22, centerX + 6, manifoldY + 28)
+              ..quadraticBezierTo(centerX + 8, manifoldY + 34, centerX + 6, chamberBottomY - 4)
+              ..quadraticBezierTo(centerX + 2, chamberBottomY, centerX - 4, chamberBottomY)
               ..quadraticBezierTo(centerX, chamberBottomY + 1, centerX - 7, chamberTipY)
     
               ..quadraticBezierTo(
@@ -2418,14 +2422,14 @@
                   colors: flowColors,
                   stops: const [0.0, 0.35, 0.72, 1.0],
                 ).createShader(Rect.fromLTWH(centerX - 16, 80, 32, 10))
-                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.2),
+                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.5),
             );
           }
     
           if (phase >= 0 && phase < 180) {
             final burnFlow = Path()
-              ..moveTo(centerX - 18, 79)
-              ..quadraticBezierTo(centerX - 10, 75, centerX, 76)
+              ..moveTo(centerX - 18, 75)
+              ..quadraticBezierTo(centerX - 18, 72, centerX, 74)
               ..quadraticBezierTo(centerX + 12, 76, centerX + 18, 81)
               ..quadraticBezierTo(centerX + 15, 89, centerX + 8, 92)
               ..quadraticBezierTo(centerX, 94, centerX - 8, 92)
@@ -2438,8 +2442,8 @@
                 ..shader = LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: flowColors,
-                  stops: const [0.0, 0.25, 0.68, 1.0],
+                  colors: flowColors, 
+                    stops: [0.0, 0.2, 0.5, 1.0]
                 ).createShader(Rect.fromLTWH(centerX - 18, 76, 36, 18))
                 ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
             );
