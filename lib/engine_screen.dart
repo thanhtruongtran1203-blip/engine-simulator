@@ -2566,32 +2566,7 @@
           );
           canvas.drawRRect(connector, neckPaint);
           canvas.drawRRect(connector, outline);
-    
-          if (sparkOn) {
-            final sparkCenter = Offset(centerX, 88);
-    
-            canvas.drawCircle(
-              sparkCenter,
-              20,
-              Paint()
-                ..color = Colors.orangeAccent.withOpacity(0.22)
-                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20),
-            );
-    
-            canvas.drawCircle(
-              sparkCenter,
-              10,
-              Paint()
-                ..color = Colors.yellowAccent.withOpacity(0.45)
-                ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7),
-            );
-    
-            canvas.drawCircle(
-              sparkCenter,
-              3.2,
-              Paint()..color = Colors.white,
-            );
-          }
+
     
           if (injectorOn) {
             final spray = Path()
