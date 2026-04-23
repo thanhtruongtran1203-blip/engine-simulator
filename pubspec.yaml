@@ -68,6 +68,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/models/engine3.glb
+    - assets/models/engine.glb
     - assets/images/gasoline.png
     - assets/suzuki.png
     - assets/toyota.png

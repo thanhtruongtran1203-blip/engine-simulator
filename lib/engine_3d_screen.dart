@@ -13,7 +13,7 @@ class Engine3DScreen extends StatelessWidget {
         backgroundColor: Colors.black,
       ),
       body: const ModelViewer(
-        src: 'assets/models/engine3.glb',
+        src: 'assets/models/engine.glb',
         autoRotate: true,
         cameraControls: true,
       ),
