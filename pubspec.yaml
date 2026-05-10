@@ -33,6 +33,9 @@ dependencies:
   model_viewer_plus: ^1.7.0
   syncfusion_flutter_gauges: ^24.1.41
   flutter_svg: ^2.0.7
+  just_audio: ^0.9.36
+  usb_serial: ^0.5.2
+
 
   # The following adds the Cupertino Icons font t o your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -70,20 +73,29 @@ flutter:
     - assets/models/engine3.glb
     - assets/models/engine.glb
     - assets/images/gasoline.png
-    - assets/suzuki.png
-    - assets/toyota.png
-    - assets/hyundai.png
-    - assets/honda.png
-    - assets/kia.png
-    - assets/mazda.png
-    - assets/mercedes.png
-    - assets/vinfast.png
-    - assets/ford.png
-    - assets/Mitsubishi.png
-    - assets/Peugeot.png
-    - assets/bmw.png
-    - assets/logo.png
-    - assets/engine.png
+    - assets/images/engine_fault.png
+    - assets/images/brake.png
+    - assets/images/cool_water.png
+    - assets/images/fuel.png
+    - assets/images/seatbelt.png
+    - assets/images/obd_device.png
+    - assets/logo/suzuki.png
+    - assets/logo/toyota.png
+    - assets/logo/hyundai.png
+    - assets/logo/honda.png
+    - assets/logo/kia.png
+    - assets/logo/mazda.png
+    - assets/logo/mercedes.png
+    - assets/logo/vinfast.png
+    - assets/logo/ford.png
+    - assets/logo/mitsubishi.png
+    - assets/logo/peugeot.png
+    - assets/logo/bmw.png
+    - assets/logo/logo.png
+    - assets/logo/engine.png
+    - assets/sounds/sound_engine_start.mp3
+    - assets/sounds/sound_engine_idle.mp3
+    - assets/sounds/sound_engine.mp3
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

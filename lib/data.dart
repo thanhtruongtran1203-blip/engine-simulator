@@ -18,18 +18,18 @@ class EngineConfig {
 
 // ================== BRANDS ==================
 final brands = [
-  Brand(name: "Suzuki", logo: "assets/suzuki.png"),
-  Brand(name: "Toyota", logo: "assets/toyota.png"),
-  Brand(name: "Honda", logo: "assets/honda.png"),
-  Brand(name: "Hyundai", logo: "assets/hyundai.png"),
-  Brand(name: "Kia", logo: "assets/kia.png"),
-  Brand(name: "Mazda", logo: "assets/mazda.png"),
-  Brand(name: "BMW", logo: "assets/bmw.png"),
-  Brand(name: "Ford", logo: "assets/ford.png"),
-  Brand(name: "Mercedes", logo: "assets/mercedes.png"),
-  Brand(name: "VinFast", logo: "assets/vinfast.png"),
-  Brand(name: "Mitsubishi", logo: "assets/Mitsubishi.png"),
-  Brand(name: "Peugeot", logo: "assets/Peugeot.png"),
+  Brand(name: "Suzuki", logo: "assets/logo/suzuki.png"),
+  Brand(name: "Toyota", logo: "assets/logo/toyota.png"),
+  Brand(name: "Honda", logo: "assets/logo/honda.png"),
+  Brand(name: "Hyundai", logo: "assets/logo/hyundai.png"),
+  Brand(name: "Kia", logo: "assets/logo/kia.png"),
+  Brand(name: "Mazda", logo: "assets/logo/mazda.png"),
+  Brand(name: "BMW", logo: "assets/logo/bmw.png"),
+  Brand(name: "Ford", logo: "assets/logo/ford.png"),
+  Brand(name: "Mercedes", logo: "assets/logo/mercedes.png"),
+  Brand(name: "VinFast", logo: "assets/logo/vinfast.png"),
+  Brand(name: "Mitsubishi", logo: "assets/logo/mitsubishi.png"),
+  Brand(name: "Peugeot", logo: "assets/logo/peugeot.png"),
 ];
 
 // ================== ENGINE DATA ==================
