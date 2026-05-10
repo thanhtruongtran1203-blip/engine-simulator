@@ -1349,11 +1349,22 @@ class _EngineScreenState extends State<EngineScreen>
                         ),
                       ),
                       Positioned(
-                        left: 168,
-                        bottom: 327,
+                        left: 169,
+                        bottom: 443,
                         child: CustomPaint(
-                          size: const Size(10,85),
+                          size: const Size(10,-10),
                           painter: ElectricPathPainterCustom2(
+                            electricController.value,
+                            useSTM32 ? rpm : fakeRPM,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 169,
+                        bottom: 350,
+                        child: CustomPaint(
+                          size: const Size(0,0),
+                          painter: ElectricPathPainterCustom21(
                             electricController.value,
                             useSTM32 ? rpm : fakeRPM,
                           ),

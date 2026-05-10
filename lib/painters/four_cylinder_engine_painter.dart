@@ -139,7 +139,7 @@ class FourCylinderEnginePainter extends CustomPainter {
 
     final rect = RRect.fromRectAndRadius(
       Rect.fromCenter(
-        center: Offset(centerX, 240),
+        center: Offset(centerX, 235),
         width: 44,
         height: 24,
       ),
@@ -161,7 +161,7 @@ class FourCylinderEnginePainter extends CustomPainter {
 
     textPainter.paint(
       canvas,
-      Offset(centerX - textPainter.width / 2, 240),
+      Offset(centerX - textPainter.width / 2, 225),
     );
   }
 
