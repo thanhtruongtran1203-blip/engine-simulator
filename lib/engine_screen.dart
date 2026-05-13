@@ -673,7 +673,7 @@ class _EngineScreenState extends State<EngineScreen>
               height: MediaQuery.of(context).size.height * 0.4,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF0B0B0B),
+                color: Colors.black,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -710,6 +710,7 @@ class _EngineScreenState extends State<EngineScreen>
                           shakeOffset: faultShakeOffset,
                           ckpFault: ckpFault,
                           cmpFault: cmpFault,
+                          rpm: currentRpm,
                         ),
                       ),
                       buildCoilHitArea(

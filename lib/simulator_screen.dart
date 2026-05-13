@@ -48,7 +48,7 @@ class SimulatorScreen extends StatelessWidget {
 
             // 🔥 THÔNG BÁO CHƯA HỖ TRỢ
             const Text(
-              "Chưa hỗ trợ simulator cho engine này",
+              "Chưa hỗ trợ Simulator cho Engine này",
               style: TextStyle(color: Colors.red),
             ),
           ],

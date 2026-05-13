@@ -12,9 +12,63 @@ class FourCylinderEnginePainter extends CustomPainter {
   final Map<int, bool> coilFaults;
   final bool ckpFault;
   final bool cmpFault;
+  final double rpm;
 
   double get flowOffset =>
       (DateTime.now().millisecondsSinceEpoch % 1000) / 1000;
+
+  double getSparkAdvance(double rpm) {
+    if (rpm < 900) return 10;
+    if (rpm < 1500) return 16;
+    if (rpm < 2200) return 22;
+    if (rpm < 3000) return 28;
+    if (rpm < 4000) return 32;
+    return 36;
+  }
+
+  double getInjectionAdvance(double rpm) {
+    if (rpm < 900) return 10;
+    if (rpm < 1500) return 18;
+    if (rpm < 2200) return 22;
+    if (rpm < 3000) return 30;
+    if (rpm < 4000) return 38;
+    return 42;
+  }
+
+  bool isSparkActive(
+      double phase,
+      double advanceDeg,
+      ) {
+    final sparkStart = (720 - advanceDeg) % 720;
+    final sparkDuration =
+    rpm < 2000 ? 10 : 14;
+
+    final sparkEnd =
+        (sparkStart + sparkDuration) % 720;
+
+    if (sparkStart < sparkEnd) {
+      return phase >= sparkStart && phase <= sparkEnd;
+    } else {
+      return phase >= sparkStart || phase <= sparkEnd;
+    }
+  }
+
+  bool isInjectionActive(
+      double phase,
+      double startDeg,
+      double durationDeg,
+      ) {
+    final endDeg =
+        (startDeg + durationDeg) % 720;
+
+    if (startDeg < endDeg) {
+      return phase >= startDeg &&
+          phase <= endDeg;
+    } else {
+      return phase >= startDeg ||
+          phase <= endDeg;
+    }
+  }
   bool get blinkOn =>
       (DateTime.now().millisecondsSinceEpoch ~/ 400) % 2 == 0;
 
@@ -27,6 +81,7 @@ class FourCylinderEnginePainter extends CustomPainter {
     required this.coilFaults,
     required this.ckpFault,
     required this.cmpFault,
+    required this.rpm,
   });
 
   @override
@@ -49,7 +104,7 @@ class FourCylinderEnginePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final outline = Paint()
-      ..color = Colors.black.withOpacity(0.35)
+      ..color = Colors.black
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 
@@ -76,6 +131,11 @@ class FourCylinderEnginePainter extends CustomPainter {
       4: 0.0,
     };
 
+    final sparkAdvance = getSparkAdvance(rpm);
+    final injectionAdvance = getInjectionAdvance(rpm);
+    final injectionStart =
+        (360 - injectionAdvance) % 720;
+
     for (int i = 0; i < 4; i++) {
       final cylinder = cylinders[i];
       final bool hasInjectorFault = injectorFaults[cylinder] ?? false;
@@ -92,8 +152,19 @@ class FourCylinderEnginePainter extends CustomPainter {
         pistonTheta:
         (crankAngle + pistonOffsetsByCylinder[cylinder]!) * pi / 180.0,
         label: '$cylinder',
-        sparkOn: activeSparkCylinders.contains(cylinder) && hasMixture,
-        injectorOn: effectiveInjectorOn,
+        sparkOn: isSparkActive(
+          (crankAngle + phaseOffsetsByCylinder[cylinder]!) % 720,
+          sparkAdvance,
+        ) && hasMixture,
+        injectorOn:
+        isInjectionActive(
+          (crankAngle +
+              phaseOffsetsByCylinder[cylinder]!) %
+              720,
+          injectionStart,
+          rpm < 2500 ? 70 : 100,
+        ) &&
+            effectiveInjectorOn,
         hasMixture: hasMixture,
         coilFault: hasCoilFault,
         outline: outline,
@@ -388,6 +459,7 @@ class FourCylinderEnginePainter extends CustomPainter {
         required bool hasMixture,
         required bool coilFault,
         required double phase,
+        required double rpm,
         required double pistonTopY,
         required Paint blueWall,
         required Paint outline,
@@ -456,6 +528,32 @@ class FourCylinderEnginePainter extends CustomPainter {
       Offset(intakeX, intakeSeatY),
       intakeStemPaint, // 🔵 nạp
     );
+
+    if (sparkOn) {
+      final sparkPaint = Paint()
+        ..color = Colors.cyanAccent
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round;
+
+      final sparkPath = Path()
+        ..moveTo(centerX, 73)
+        ..lineTo(centerX - 3, 77)
+        ..lineTo(centerX + 2, 81)
+        ..lineTo(centerX - 2, 85);
+
+      canvas.drawPath(sparkPath, sparkPaint);
+
+      canvas.drawCircle(
+        Offset(centerX, 84),
+        4,
+        Paint()
+          ..color = Colors.white.withOpacity(0.8)
+          ..maskFilter = const MaskFilter.blur(
+            BlurStyle.normal,
+            6,
+          ),
+      );
+    }
 
     canvas.drawLine(
       Offset(exhaustX, valveTopY + 2),
@@ -781,7 +879,29 @@ class FourCylinderEnginePainter extends CustomPainter {
     }
 
 
-    if (hasMixture && !coilFault && phase >= 0 && phase < 180) {
+    final sparkAdvance = getSparkAdvance(rpm);
+
+    final combustionStart =
+        (720 - sparkAdvance) % 720;
+
+    final combustionEnd =
+        (combustionStart + 180) % 720;
+
+    bool combustionActive;
+
+    if (combustionStart < combustionEnd) {
+      combustionActive =
+          phase >= combustionStart &&
+              phase < combustionEnd;
+    } else {
+      combustionActive =
+          phase >= combustionStart ||
+              phase < combustionEnd;
+    }
+
+    if (hasMixture &&
+        !coilFault &&
+        combustionActive) {
       final t = (phase / 180).clamp(0.0, 1.0);
 
       final chamberTop = 82.0;
@@ -1510,6 +1630,7 @@ class FourCylinderEnginePainter extends CustomPainter {
       hasMixture: hasMixture,
       coilFault: coilFault,
       phase: phase,
+      rpm: rpm,
       pistonTopY: pistonRect.top,
       blueWall: blueWall,
       outline: outline,
@@ -1535,21 +1656,73 @@ class FourCylinderEnginePainter extends CustomPainter {
   }
 
   void _drawStatusText(Canvas canvas, Size size) {
-    final status = isRunning ? '2D RUNNING' : '2D READY';
+    final sparkAdv = getSparkAdvance(rpm);
+    final injAdv = getInjectionAdvance(rpm);
+
+    final spark1 = (720 - sparkAdv) % 720;
+    final spark2 = (spark1 + 180) % 720;
+    final spark3 = (spark1 + 540) % 720;
+    final spark4 = (spark1 + 360) % 720;
+
+    final inj1 = (360 - injAdv) % 720;
+    final inj2 = (inj1 + 180) % 720;
+    final inj3 = (inj1 + 540) % 720;
+    final inj4 = (inj1 + 360) % 720;
+
+    final lines = [
+      'RPM ${rpm.toInt()}         CYL  SPK   INJ',
+      'ADV               1    ${spark1.toStringAsFixed(0)}°  ${inj1.toStringAsFixed(0)}°',
+      'SPK ${sparkAdv.toStringAsFixed(0)}°           2    ${spark2.toStringAsFixed(0)}°  ${inj2.toStringAsFixed(0)}°',
+      'INJ ${injAdv.toStringAsFixed(0)}°           3    ${spark3.toStringAsFixed(0)}°  ${inj3.toStringAsFixed(0)}°',
+      '                  4    ${spark4.toStringAsFixed(0)}°  ${inj4.toStringAsFixed(0)}°',
+    ];
+
     final tp = TextPainter(
       text: TextSpan(
-        text: status,
+        text: lines.join('\n'),
         style: TextStyle(
-          color: isRunning ? Colors.greenAccent : Colors.white70,
-          fontSize: 0,
+          color: isRunning
+              ? Colors.white70
+              : Colors.white70,
+          fontSize: 12,
+          fontFamily: 'monospace',
           fontWeight: FontWeight.w700,
-          letterSpacing: 1.6,
+          height: 1.4,
         ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
 
-    tp.paint(canvas, Offset(size.width - tp.width - 8, size.height - tp.height - 6));
+    final bgRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        size.width - tp.width - 70,
+        size.height - tp.height - 300,
+        tp.width + 12,
+        tp.height + 10,
+      ),
+      const Radius.circular(6),
+    );
+
+    canvas.drawRRect(
+      bgRect,
+      Paint()
+        ..color = Colors.black
+    );
+
+    canvas.drawRRect(
+      bgRect,
+      Paint()
+        ..color = Colors.grey.withOpacity(0.4)
+        ..style = PaintingStyle.stroke,
+    );
+
+    tp.paint(
+      canvas,
+      Offset(
+        size.width - tp.width - 65,
+        size.height - tp.height - 297,
+      ),
+    );
   }
 
   @override
