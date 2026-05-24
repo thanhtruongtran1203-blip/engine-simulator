@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../painters/four_cylinder_engine_painter.dart';
 
+import '../painters/engine_status_painter.dart';
+
 class Engine2DPreview extends StatelessWidget {
   final double crankAngle;
   final Set<int> activeSparkCylinders;
@@ -33,21 +35,40 @@ class Engine2DPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Transform.translate(
-        offset: shakeOffset,
-        child: CustomPaint(
-          size: const Size(360, 230),
-          painter: FourCylinderEnginePainter(
-            crankAngle: crankAngle,
-            activeSparkCylinders: activeSparkCylinders,
-            injectorCylinder: injectorCylinder,
-            isRunning: isRunning,
-            injectorFaults: injectorFaults,
-            coilFaults: coilFaults,
-            ckpFault: ckpFault,
-            cmpFault: cmpFault,
-            rpm: rpm,
-          ),
+      child: SizedBox(
+        width: 360,
+        height: 230,
+        child: Stack(
+          children: [
+
+            // 🔥 chỉ động cơ rung
+            Transform.translate(
+              offset: shakeOffset,
+              child: CustomPaint(
+                size: const Size(360, 230),
+                painter: FourCylinderEnginePainter(
+                  crankAngle: crankAngle,
+                  activeSparkCylinders: activeSparkCylinders,
+                  injectorCylinder: injectorCylinder,
+                  isRunning: isRunning,
+                  injectorFaults: injectorFaults,
+                  coilFaults: coilFaults,
+                  ckpFault: ckpFault,
+                  cmpFault: cmpFault,
+                  rpm: rpm,
+                ),
+              ),
+            ),
+
+            // 📟 bảng thông số đứng yên
+            CustomPaint(
+              size: const Size(360, 230),
+              painter: EngineStatusPainter(
+                rpm: rpm,
+                isRunning: isRunning,
+              ),
+            ),
+          ],
         ),
       ),
     );

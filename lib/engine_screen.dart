@@ -12,8 +12,7 @@ import 'painters/injector_painters.dart';
 import 'widgets/engine_2d_preview.dart';
 import 'widgets/engine_gauges.dart';
 import 'widgets/engine_start_button.dart';
-import '../audio/engine_sound_controller.dart';
-
+import 'widgets/ckp_waveform.dart';
 
 class EngineScreen extends StatefulWidget {
   const EngineScreen({super.key});
@@ -25,18 +24,18 @@ class EngineScreen extends StatefulWidget {
 class _EngineScreenState extends State<EngineScreen>
     with SingleTickerProviderStateMixin {
   double rpm = 1000;
-  double fakeRPM = 1000;
   double crankAngle = 0;
+  double renderAngle = 0;
+  DateTime lastRenderTime = DateTime.now();
   int spark = 0;
   int injector = 0;
   bool useSTM32 = false;
   bool isRunning = false;
-  double simScale = 0.2;
+  double simScale = 0.12;
   double prevAngle = 0;
   bool ckpFault = false;
   bool cmpFault = false;
   double targetRPM = 1000;
-
 
   final Map<int, bool> injectorFaults = {
     1: false,
@@ -64,9 +63,11 @@ class _EngineScreenState extends State<EngineScreen>
   int injectorPulseId = 0;
   int sparkPulseId = 0;
   late AnimationController electricController;
-  late EngineSoundController engineSound;
 
   final Set<int> activeSparkCylinders = <int>{};
+
+  final Map<int, int> _lastInjectorTrigger = {};
+  final Map<int, int> _lastSparkTrigger = {};
 
   final Map<int, double> fireAngle = {
     1: 0.0,
@@ -174,11 +175,31 @@ class _EngineScreenState extends State<EngineScreen>
   }
 
   double get currentRpm {
-    final value = useSTM32 ? rpm : fakeRPM;
-    return value.clamp(500, 6000);
+    return rpm.clamp(500, 6000);
   }
 
   double get eventIntervalMs => 120000 / currentRpm;
+
+  double getInjectionAdvance(double rpm) {
+
+    if (rpm < 1000) {
+      return 320;
+    }
+
+    if (rpm < 2000) {
+      return 300;
+    }
+
+    if (rpm < 3000) {
+      return 280;
+    }
+
+    if (rpm < 4500) {
+      return 250;
+    }
+
+    return 220;
+  }
 
   Future<void> connectSTM32() async {
     if (useTcpBridge) {
@@ -218,6 +239,7 @@ class _EngineScreenState extends State<EngineScreen>
   }
 
   Future<void> connectSTM32Usb() async {
+
     await disconnectSTM32();
 
     final devices = await UsbSerial.listDevices();
@@ -227,9 +249,20 @@ class _EngineScreenState extends State<EngineScreen>
       return;
     }
 
-    stm32Port = await devices.first.create();
+    for(final d in devices)
+    {
+      debugPrint(
+          '${d.productName} '
+              '${d.vid}:${d.pid}'
+      );
+    }
+
+    final device = devices.first;
+
+    stm32Port = await device.create();
 
     final opened = await stm32Port!.open();
+
     if (!opened) {
       debugPrint('Khong mo duoc USB UART');
       return;
@@ -245,10 +278,15 @@ class _EngineScreenState extends State<EngineScreen>
       UsbPort.PARITY_NONE,
     );
 
-    stm32Sub = stm32Port!.inputStream?.listen((Uint8List data) {
-      final chunk = String.fromCharCodes(data);
-      onDataReceived(chunk);
-    });
+    stm32Sub = stm32Port!.inputStream?.listen(
+          (Uint8List data) {
+
+        final chunk =
+        String.fromCharCodes(data);
+
+        onDataReceived(chunk);
+      },
+    );
 
     debugPrint('Da ket noi STM32 UART');
   }
@@ -271,75 +309,101 @@ class _EngineScreenState extends State<EngineScreen>
   @override
   void initState() {
     super.initState();
-    engineSound = EngineSoundController();
-    engineSound.init();
+    Future.delayed(
+      const Duration(milliseconds: 500),
+          () async {
+        await connectSTM32();
+
+        setState(() {
+          useSTM32 = true;
+        });
+      },
+    );
 
     electricController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     );
 
-    engineLoop = Timer.periodic(const Duration(milliseconds: 16), (_) {
-      if (!isRunning || useSTM32) return;
+    engineLoop = Timer.periodic(
+        const Duration(milliseconds: 16),
+            (_) {
 
-      double diff = targetRPM - fakeRPM;
+          if (!isRunning) return;
 
-      if (ckpFault) {
-        // giảm chậm + có quán tính
-        fakeRPM += diff * 0.012;
+          final now = DateTime.now();
 
-        // 🔥 tụt bất thường (giống mất sync CKP)
-        if (fakeRPM > 400 && _rand.nextDouble() < 0.1) {
-          fakeRPM -= 100 + _rand.nextDouble() * 200;
-        }
+          final dt =
+              now.difference(lastRenderTime)
+                  .inMicroseconds / 1000000.0;
 
-        // 🔥 dao động nhẹ trước khi chết máy
-        fakeRPM += sin(DateTime.now().millisecondsSinceEpoch / 80) * 5;
-      } else {
-        fakeRPM += diff * 0.05;
-      }
-      if (ckpFault && fakeRPM > 300) {
+          lastRenderTime = now;
+
+          if (!ckpFault) {
+
+            // 🔥 realtime từ STM32
+            rpm = targetRPM;
+
+            final visualRpm =
+                currentRpm * 0.08;
+
+            final degPerSecond =
+                (visualRpm * 720.0) / 60.0;
+
+            renderAngle += degPerSecond * dt;
+
+            while (renderAngle >= 720) {
+              renderAngle -= 720;
+            }
+
+            double diff = crankAngle - renderAngle;
+
+            if (diff > 360) diff -= 720;
+            if (diff < -360) diff += 720;
+
+            renderAngle += diff * 0.03;
+
+          } else {
+
+            double diff = targetRPM - rpm;
+
+            rpm += diff * 0.2;
+
+            if (rpm > 400 && _rand.nextDouble() < 0.1) {
+              rpm -= 100 + _rand.nextDouble() * 200;
+            }
+
+            rpm += sin(
+              DateTime.now().millisecondsSinceEpoch / 80,
+            ) * 5;
+          }
+      if (ckpFault && rpm > 300) {
         if (_rand.nextDouble() < 0.08) {
-          fakeRPM -= _rand.nextDouble() * 150; // tụt bất chợt
+          rpm -= _rand.nextDouble() * 150; // tụt bất chợt
         }
       }
 
-      if (ckpFault && fakeRPM < 250) {
-        fakeRPM *= 0.9;
+      if (ckpFault && rpm < 250) {
+        rpm *= 0.9;
 
-        if (ckpFault && fakeRPM < 300) {
-          fakeRPM *= 0.92;
+        if (ckpFault && rpm < 300) {
+          rpm *= 0.92;
 
-          if (fakeRPM < 520) {
-            fakeRPM = 500; // 🔥 giữ min hợp lệ
+          if (rpm < 520) {
+            rpm = 500; // 🔥 giữ min hợp lệ
             isRunning = false;
-            engineSound.stop();
             electricController.stop();
           }
         }
       }
-      if (ckpFault && fakeRPM > 300 && _rand.nextDouble() < 0.2) {
-        engineSound.misfireStrong();
+      if (ckpFault && rpm > 300 && _rand.nextDouble() < 0.2) {
       }
-
-      final double step = fakeRPM * 6 * 0.016 * simScale;
-      const int subSteps = 50;
-      final double subStepAngle = step / subSteps;
-
-      for (int i = 0; i < subSteps; i++) {
-        crankAngle += subStepAngle;
-
-        if (crankAngle >= 720) {
-          crankAngle -= 720;
-        }
-
-        checkFireByAngle();
-      }
-      engineSound.updateRPM(currentRpm);
+      checkFireByAngle();
 
       setState(() {});
     });
   }
+
 
   @override
   void dispose() {
@@ -348,7 +412,6 @@ class _EngineScreenState extends State<EngineScreen>
     stm32Sub?.cancel();
     stm32Port?.close();
 
-    engineSound.dispose();
     engineLoop?.cancel();
     electricController.dispose();
     super.dispose();
@@ -369,13 +432,12 @@ class _EngineScreenState extends State<EngineScreen>
         targetRPM = 0;
       } else {
         // 🔺 chạy lại theo ga hiện tại
-        targetRPM = fakeRPM;
+        targetRPM = rpm;
 
         // nếu trước đó rpm đã về 0 thì cho chạy lại
         if (!isRunning) {
           isRunning = true;
           electricController.repeat();
-          engineSound.start();
         }
       }
     });
@@ -406,14 +468,20 @@ class _EngineScreenState extends State<EngineScreen>
     if (ckpFault) return;
 
     setState(() {
+
+      _lastInjectorTrigger.clear();
+      _lastSparkTrigger.clear();
+
       isRunning = true;
       crankAngle = 0;
+      renderAngle = 0;
       prevAngle = 719.9;
       injector = 0;
       spark = 0;
+      rpm = 500;
+      targetRPM = 500;
       activeSparkCylinders.clear();
     });
-    engineSound.start();
 
     electricController.repeat();
   }
@@ -425,53 +493,59 @@ class _EngineScreenState extends State<EngineScreen>
       spark = 0;
       activeSparkCylinders.clear();
     });
-    engineSound.stop();
 
     electricController.stop();
   }
 
   void onDataReceived(String chunk) {
+
     buffer += chunk;
 
-    while (buffer.contains('<') && buffer.contains('>')) {
-      final int start = buffer.indexOf('<');
-      final int end = buffer.indexOf('>', start);
+    final matches =
+    RegExp(r'<\d+,-?\d+>')
+        .allMatches(buffer)
+        .toList();
 
-      if (start != -1 && end != -1 && end > start) {
-        final String frame = buffer.substring(start, end + 1);
-        buffer = buffer.substring(end + 1);
+    if (matches.isNotEmpty) {
 
-        parseFrame(frame);
-      } else {
-        break;
-      }
+      // 🔥 lấy frame mới nhất
+      final latest =
+      matches.last.group(0)!;
+
+      parseFrame(latest);
+
+      // 🔥 clear buffer tránh delay
+      buffer = '';
     }
   }
 
-  void parseFrame(String data) {
+  void parseFrame(String data)
+  {
     if (!useSTM32 || ckpFault) return;
 
-    final reg = RegExp(r'<(\d+),(-?\d+),(\d+),(\d+)>');
-    final match = reg.firstMatch(data);
+    final reg =
+    RegExp(r'<(\d+),(-?\d+)>');
+
+    final match =
+    reg.firstMatch(data);
 
     if (match == null) return;
 
-    final int newSpark = int.parse(match.group(3)!);
-    final int newInj = int.parse(match.group(4)!);
+    if (!isRunning) return;
 
-    rpm = double.parse(match.group(1)!);
-    crankAngle = double.parse(match.group(2)!);
+    final newRPM =
+    double.parse(match.group(1)!);
 
-    if (newInj != 0) {
-      triggerInjector(newInj);
-    }
+    targetRPM = newRPM;
+    rpm = newRPM;
 
-    if (newSpark != 0) {
-      triggerSpark(newSpark);
-    }
+    prevAngle = crankAngle;
 
-    setState(() {});
-    engineSound.updateRPM(currentRpm);
+    crankAngle =
+        double.parse(match.group(2)!);
+
+    checkFireByAngle();
+
   }
 
   int sparkVisualDurationMs() {
@@ -487,12 +561,21 @@ class _EngineScreenState extends State<EngineScreen>
   }
 
   void triggerInjector(int cyl) {
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if ((now - (_lastInjectorTrigger[cyl] ?? 0)) < 40) {
+      return;
+    }
+
+    _lastInjectorTrigger[cyl] = now;
+
     if (ckpFault) return;
+
     if (hasInjectorFault(cyl)) {
       final now = DateTime.now().millisecondsSinceEpoch;
 
       if (now - _lastMisfireTime > 120 && _rand.nextDouble() < 0.7) {
-        engineSound.misfireEffect();
         _lastMisfireTime = now;
       }
 
@@ -501,58 +584,59 @@ class _EngineScreenState extends State<EngineScreen>
 
     if (cmpGlitchActive && cyl.isEven) return;
 
-    final pulseId = ++injectorPulseId;
-
     setState(() {
       injector = cyl;
     });
 
-    final int duration = injectorVisualDurationMs();
-
-    Future.delayed(Duration(milliseconds: duration), () {
-      if (!mounted) return;
-
-      if (pulseId == injectorPulseId && injector == cyl) {
-        setState(() {
-          injector = 0;
-        });
-      }
-    });
   }
 
   void triggerSpark(int cyl) {
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if ((now - (_lastSparkTrigger[cyl] ?? 0)) < 40) {
+      return;
+    }
+
+    _lastSparkTrigger[cyl] = now;
+
     if (ckpFault) return;
+
     if (hasCoilFault(cyl)) {
+
       final now = DateTime.now().millisecondsSinceEpoch;
 
       if (now - _lastMisfireTime > 120 && _rand.nextDouble() < 0.8) {
-        engineSound.misfireStrong(); // 🔥 dùng strong
         _lastMisfireTime = now;
       }
 
-      // ❌ không tạo spark cho xy lanh này
       setState(() {
         spark = 0;
       });
 
       return;
     }
+
     if (cmpGlitchActive && cyl == 3) return;
 
     final id = ++sparkPulseId;
 
     setState(() {
       spark = cyl;
+
       activeSparkCylinders
         ..clear()
         ..add(cyl);
     });
 
     final int duration = sparkVisualDurationMs();
+
     Future.delayed(Duration(milliseconds: duration), () {
+
       if (!mounted) return;
 
       if (id == sparkPulseId) {
+
         setState(() {
           activeSparkCylinders.clear();
           spark = 0;
@@ -562,11 +646,11 @@ class _EngineScreenState extends State<EngineScreen>
   }
 
   void checkFireByAngle() {
-    if (useSTM32 || !isRunning) return;
+    if (!isRunning) return;
 
     if (ckpFault) {
       // mất đồng bộ nặng hơn theo rpm
-      double failRate = (fakeRPM / 6000).clamp(0.2, 0.8);
+      double failRate = (rpm / 6000).clamp(0.2, 0.8);
 
       if (_rand.nextDouble() < failRate) return;
     }
@@ -584,14 +668,59 @@ class _EngineScreenState extends State<EngineScreen>
     }
 
     prevAngle = crankAngle;
+
+    bool injectorStillActive = false;
+
+    for (final cyl in [1, 2, 3, 4]) {
+
+      final start =
+          (360 - getInjectionAdvance(currentRpm)) % 720;
+
+      final duration =
+      currentRpm < 2500 ? 70.0 : 100.0;
+
+      final phase =
+          (renderAngle + {
+            1: 0.0,
+            2: 180.0,
+            3: 540.0,
+            4: 360.0,
+          }[cyl]!) % 720;
+
+      final end =
+          (start + duration) % 720;
+
+      bool active;
+
+      if (start < end) {
+        active =
+            phase >= start &&
+                phase <= end;
+      } else {
+        active =
+            phase >= start ||
+                phase <= end;
+      }
+
+      if (active && !hasInjectorFault(cyl)) {
+        injectorStillActive = true;
+        injector = cyl;
+      }
+    }
+
+    if (!injectorStillActive) {
+      injector = 0;
+    }
   }
 
   bool isAnglePassed(double prev, double current, double target) {
-    if (prev < current) {
-      return target > prev && target <= current;
+
+    // wrap 720 -> 0
+    if (prev > 650 && current < 100) {
+      return target > prev || target <= current;
     }
 
-    return target > prev || target <= current;
+    return target > prev && target <= current;
   }
 
   Widget buildCoilHitArea({
@@ -618,7 +747,7 @@ class _EngineScreenState extends State<EngineScreen>
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final double displayRPM =
-    (useSTM32 ? rpm : fakeRPM).clamp(500, 6000);
+    rpm.clamp(500, 6000);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
@@ -701,7 +830,7 @@ class _EngineScreenState extends State<EngineScreen>
                     children: [
                       Center(
                         child: Engine2DPreview(
-                          crankAngle: crankAngle,
+                          crankAngle: renderAngle,
                           activeSparkCylinders: activeSparkCylinders,
                           injectorCylinder: injector,
                           isRunning: isRunning,
@@ -711,6 +840,20 @@ class _EngineScreenState extends State<EngineScreen>
                           ckpFault: ckpFault,
                           cmpFault: cmpFault,
                           rpm: currentRpm,
+                        ),
+                      ),
+                      Positioned(
+                        left: 10,
+                        right: 10,
+                        bottom: 0,
+                        child: SizedBox(
+                          height: 90,
+                          child: CustomPaint(
+                            painter: CKPWaveformPainter(
+                              crankAngle: renderAngle,
+                              rpm: currentRpm,
+                            ),
+                          ),
                         ),
                       ),
                       buildCoilHitArea(
@@ -1159,11 +1302,11 @@ class _EngineScreenState extends State<EngineScreen>
           ),
           Positioned(
             left: 900,
-            bottom: 50,
+            bottom: 0,
             child: Image.asset(
               'assets/images/obd_device.png',
-              width: 100,
-              height: 100,
+              width: 170,
+              height: 170,
               fit: BoxFit.contain,
             ),
           ),
@@ -1178,8 +1321,8 @@ class _EngineScreenState extends State<EngineScreen>
           ),
           if (hasAnyFault)
             Positioned(
-              right: 110,
-              bottom: 78,
+              right: 53,
+              bottom: 60,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -1205,7 +1348,7 @@ class _EngineScreenState extends State<EngineScreen>
                       '$currentFaultCode - $currentFaultLabel',
                       style: const TextStyle(
                         color: Colors.orangeAccent,
-                        fontSize: 4,
+                        fontSize: 8,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1226,8 +1369,8 @@ class _EngineScreenState extends State<EngineScreen>
             ),
           ),
           Positioned(
-            bottom: 30,
-            right: 840,
+            bottom: 60,
+            right: 880,
             child: EngineStartButton(
               isRunning: isRunning,
               onStart: startEngine,
@@ -1235,8 +1378,8 @@ class _EngineScreenState extends State<EngineScreen>
             ),
           ),
           Positioned(
-            bottom: 40,
-            right: 740,
+            bottom: 70,
+            right: 800,
             child: SizedBox(
               height: 28,
               child: ElevatedButton(
@@ -1247,20 +1390,22 @@ class _EngineScreenState extends State<EngineScreen>
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 onPressed: () async {
-                  final nextUseSTM32 = !useSTM32;
-
-                  setState(() {
-                    useSTM32 = nextUseSTM32;
-                  });
-
-                  if (nextUseSTM32) {
+                  if (stm32Port == null) {
                     await connectSTM32();
+
+                    setState(() {
+                      useSTM32 = true;
+                    });
                   } else {
                     await disconnectSTM32();
+
+                    setState(() {
+                      useSTM32 = false;
+                    });
                   }
                 },
                 child: Text(
-                  useSTM32 ? 'STM32' : 'FAKE',
+                  stm32Port != null ? 'CONNECTED' : 'CONNECT',
                   style: const TextStyle(fontSize: 8),
                 ),
               ),
@@ -1274,50 +1419,6 @@ class _EngineScreenState extends State<EngineScreen>
               child: Image.asset(
                 'assets/images/gasoline.png',
                 fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            bottom: 100,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'RPM: ${displayRPM.toInt()}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        trackHeight: 2,
-                        overlayShape: SliderComponentShape.noOverlay,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 6,
-                        ),
-                      ),
-                      child: Slider(
-                        min: 500,
-                        max: 6000,
-                        divisions: 55,
-                        value: fakeRPM.clamp(500, 6000),
-                        onChanged: useSTM32
-                            ? null
-                            : (value) {
-                          setState(() {
-                            targetRPM = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -1345,7 +1446,7 @@ class _EngineScreenState extends State<EngineScreen>
                           size: const Size(10, 164),
                           painter: ElectricPathPainterCustom1(
                             electricController.value,
-                            useSTM32 ? rpm : fakeRPM,
+                            rpm,
                           ),
                         ),
                       ),
@@ -1356,7 +1457,7 @@ class _EngineScreenState extends State<EngineScreen>
                           size: const Size(10,-10),
                           painter: ElectricPathPainterCustom2(
                             electricController.value,
-                            useSTM32 ? rpm : fakeRPM,
+                            rpm,
                           ),
                         ),
                       ),
@@ -1367,7 +1468,7 @@ class _EngineScreenState extends State<EngineScreen>
                           size: const Size(0,0),
                           painter: ElectricPathPainterCustom21(
                             electricController.value,
-                            useSTM32 ? rpm : fakeRPM,
+                            rpm,
                           ),
                         ),
                       ),

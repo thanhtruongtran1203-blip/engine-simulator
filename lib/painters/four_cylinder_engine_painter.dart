@@ -14,8 +14,16 @@ class FourCylinderEnginePainter extends CustomPainter {
   final bool cmpFault;
   final double rpm;
 
-  double get flowOffset =>
-      (DateTime.now().millisecondsSinceEpoch % 1000) / 1000;
+  double get flowOffset {
+    final speed =
+    (rpm / 6000).clamp(0.03, 1.0);
+
+    return ((DateTime.now()
+        .millisecondsSinceEpoch *
+        speed) %
+        1000) /
+        1000;
+  }
 
   double getSparkAdvance(double rpm) {
     if (rpm < 900) return 10;
@@ -33,6 +41,15 @@ class FourCylinderEnginePainter extends CustomPainter {
     if (rpm < 3000) return 30;
     if (rpm < 4000) return 38;
     return 42;
+  }
+
+  double getInjectionPulseWidth(double rpm) {
+    if (rpm < 900) return 2.2;
+    if (rpm < 1500) return 2.8;
+    if (rpm < 2200) return 3.2;
+    if (rpm < 3000) return 3.8;
+    if (rpm < 4000) return 4.5;
+    return 5.2;
   }
 
   bool isSparkActive(
@@ -184,8 +201,6 @@ class FourCylinderEnginePainter extends CustomPainter {
         );
       }
     }
-
-    _drawStatusText(canvas, size);
   }
   void _drawCheckEngineWarning(
       Canvas canvas, {
@@ -1504,6 +1519,7 @@ class FourCylinderEnginePainter extends CustomPainter {
       Canvas canvas,
       Offset crankCenter,
       Offset crankPin,
+      double pistonTheta,
       Paint darkMetal,
       Paint outline,
       ) {
@@ -1526,10 +1542,15 @@ class FourCylinderEnginePainter extends CustomPainter {
     canvas.drawCircle(crankCenter, 22, crankMetal);
     canvas.drawCircle(crankCenter, 22, outline);
 
+    final marker = Offset(
+      crankCenter.dx + cos(pistonTheta - pi / 2) * 12,
+      crankCenter.dy + sin(pistonTheta - pi / 2) * 12,
+    );
+
     canvas.drawCircle(
-      Offset(crankCenter.dx - 6, crankCenter.dy - 6),
+      marker,
       3,
-      Paint()..color = Colors.white.withOpacity(0.7),
+      Paint()..color = Colors.white.withOpacity(0.8),
     );
 
     canvas.drawCircle(
@@ -1568,6 +1589,7 @@ class FourCylinderEnginePainter extends CustomPainter {
     final rightWall = centerX + 30;
 
     final crankCenter = Offset(centerX, crankY);
+
     final crankPin = Offset(
       crankCenter.dx + crankRadius * sin(pistonTheta),
       crankCenter.dy - crankRadius * cos(pistonTheta),
@@ -1638,7 +1660,14 @@ class FourCylinderEnginePainter extends CustomPainter {
 
     _drawConnectingRod(canvas, crankPin, pistonPin, metal, outline);
     _drawPiston(canvas, pistonRect, metal, darkMetal, outline);
-    _drawCrank(canvas, crankCenter, crankPin, darkMetal, outline);
+    _drawCrank(
+      canvas,
+      crankCenter,
+      crankPin,
+      pistonTheta,
+      darkMetal,
+      outline,
+    );
 
     final textPainter = TextPainter(
       text: TextSpan(
@@ -1653,81 +1682,44 @@ class FourCylinderEnginePainter extends CustomPainter {
     )..layout();
 
     textPainter.paint(canvas, Offset(centerX - textPainter.width / 2, 2));
-  }
 
-  void _drawStatusText(Canvas canvas, Size size) {
-    final sparkAdv = getSparkAdvance(rpm);
-    final injAdv = getInjectionAdvance(rpm);
-
-    final spark1 = (720 - sparkAdv) % 720;
-    final spark2 = (spark1 + 180) % 720;
-    final spark3 = (spark1 + 540) % 720;
-    final spark4 = (spark1 + 360) % 720;
-
-    final inj1 = (360 - injAdv) % 720;
-    final inj2 = (inj1 + 180) % 720;
-    final inj3 = (inj1 + 540) % 720;
-    final inj4 = (inj1 + 360) % 720;
-
-    final lines = [
-      'RPM ${rpm.toInt()}         CYL  SPK   INJ',
-      'ADV               1    ${spark1.toStringAsFixed(0)}°  ${inj1.toStringAsFixed(0)}°',
-      'SPK ${sparkAdv.toStringAsFixed(0)}°           2    ${spark2.toStringAsFixed(0)}°  ${inj2.toStringAsFixed(0)}°',
-      'INJ ${injAdv.toStringAsFixed(0)}°           3    ${spark3.toStringAsFixed(0)}°  ${inj3.toStringAsFixed(0)}°',
-      '                  4    ${spark4.toStringAsFixed(0)}°  ${inj4.toStringAsFixed(0)}°',
-    ];
-
-    final tp = TextPainter(
-      text: TextSpan(
-        text: lines.join('\n'),
-        style: TextStyle(
-          color: isRunning
-              ? Colors.white70
-              : Colors.white70,
-          fontSize: 12,
-          fontFamily: 'monospace',
-          fontWeight: FontWeight.w700,
-          height: 1.4,
+    if (ckpFault) {
+      final tp = TextPainter(
+        text: const TextSpan(
+          text: 'CKP OFF',
+          style: TextStyle(
+            color: Colors.redAccent,
+            fontSize: 7,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
+        textDirection: TextDirection.ltr,
+      )..layout();
 
-    final bgRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        size.width - tp.width - 70,
-        size.height - tp.height - 300,
-        tp.width + 12,
-        tp.height + 10,
-      ),
-      const Radius.circular(6),
-    );
+      tp.paint(canvas, Offset(centerX - tp.width / 2, 14));
+    }
 
-    canvas.drawRRect(
-      bgRect,
-      Paint()
-        ..color = Colors.black
-    );
+    if (cmpFault) {
+      final tp = TextPainter(
+        text: const TextSpan(
+          text: 'CMP OFF',
+          style: TextStyle(
+            color: Colors.redAccent,
+            fontSize: 7,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
 
-    canvas.drawRRect(
-      bgRect,
-      Paint()
-        ..color = Colors.grey.withOpacity(0.4)
-        ..style = PaintingStyle.stroke,
-    );
-
-    tp.paint(
-      canvas,
-      Offset(
-        size.width - tp.width - 65,
-        size.height - tp.height - 297,
-      ),
-    );
+      tp.paint(canvas, Offset(centerX - tp.width / 2, 14));
+    }
   }
 
   @override
   bool shouldRepaint(covariant FourCylinderEnginePainter oldDelegate) {
     return oldDelegate.crankAngle != crankAngle ||
+        oldDelegate.rpm != rpm || // 👈 THÊM DÒNG NÀY
         oldDelegate.activeSparkCylinders.length != activeSparkCylinders.length ||
         !oldDelegate.activeSparkCylinders.containsAll(activeSparkCylinders) ||
         oldDelegate.injectorCylinder != injectorCylinder ||
