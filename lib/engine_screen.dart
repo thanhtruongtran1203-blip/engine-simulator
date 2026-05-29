@@ -13,6 +13,7 @@ import 'widgets/engine_2d_preview.dart';
 import 'widgets/engine_gauges.dart';
 import 'widgets/engine_start_button.dart';
 import 'widgets/ckp_waveform.dart';
+import 'faults/engine_faults.dart';
 
 class EngineScreen extends StatefulWidget {
   const EngineScreen({super.key});
@@ -36,6 +37,12 @@ class _EngineScreenState extends State<EngineScreen>
   bool ckpFault = false;
   bool cmpFault = false;
   double targetRPM = 1000;
+  bool appFault = false;
+  bool mapFault = false;
+  bool iatFault = false;
+  bool ectFault = false;
+  bool oilTempFault = false;
+  bool fuelPumpFault = false;
 
   final Map<int, bool> injectorFaults = {
     1: false,
@@ -87,49 +94,60 @@ class _EngineScreenState extends State<EngineScreen>
 
   bool hasCoilFault(int cyl) => coilFaults[cyl] ?? false;
 
-  String get currentInjectorFaultCode {
-    if (hasInjectorFault(1)) return 'P0201';
-    if (hasInjectorFault(2)) return 'P0202';
-    if (hasInjectorFault(3)) return 'P0203';
-    if (hasInjectorFault(4)) return 'P0204';
-    return '';
-  }
+  String get currentSensorFaultCode =>
+      EngineFaults.getSensorFaultCode(
+        ckpFault: ckpFault,
+        cmpFault: cmpFault,
+        appFault: appFault,
+        mapFault: mapFault,
+        iatFault: iatFault,
+        ectFault: ectFault,
+        oilTempFault: oilTempFault,
+        fuelPumpFault: fuelPumpFault,
+      );
 
-  String get currentInjectorFaultLabel {
-    if (hasInjectorFault(1)) return 'Injector 1 Fault';
-    if (hasInjectorFault(2)) return 'Injector 2 Fault';
-    if (hasInjectorFault(3)) return 'Injector 3 Fault';
-    if (hasInjectorFault(4)) return 'Injector 4 Fault';
-    return '';
-  }
+  String get currentSensorFaultLabel =>
+      EngineFaults.getSensorFaultLabel(
+        ckpFault: ckpFault,
+        cmpFault: cmpFault,
+        appFault: appFault,
+        mapFault: mapFault,
+        iatFault: iatFault,
+        ectFault: ectFault,
+        oilTempFault: oilTempFault,
+        fuelPumpFault: fuelPumpFault,
+      );
 
-  String get currentCoilFaultCode {
-    if (hasCoilFault(1)) return 'P0351';
-    if (hasCoilFault(2)) return 'P0352';
-    if (hasCoilFault(3)) return 'P0353';
-    if (hasCoilFault(4)) return 'P0354';
-    return '';
-  }
+  String get currentInjectorFaultCode =>
+      EngineFaults.getInjectorFaultCode(
+        injectorFaults,
+      );
 
-  String get currentCoilFaultLabel {
-    if (hasCoilFault(1)) return 'Ignition Coil 1 Fault';
-    if (hasCoilFault(2)) return 'Ignition Coil 2 Fault';
-    if (hasCoilFault(3)) return 'Ignition Coil 3 Fault';
-    if (hasCoilFault(4)) return 'Ignition Coil 4 Fault';
-    return '';
-  }
+  String get currentInjectorFaultLabel =>
+      EngineFaults.getInjectorFaultLabel(
+        injectorFaults,
+      );
 
-  String get currentSensorFaultCode {
-    if (ckpFault) return 'P0335';
-    if (cmpFault) return 'P0340';
-    return '';
-  }
+  String get currentInjectorFaultDescription =>
+      EngineFaults.getInjectorFaultDescription(
+        injectorFaults,
+      );
 
-  String get currentSensorFaultLabel {
-    if (ckpFault) return 'CKP Sensor Fault';
-    if (cmpFault) return 'CMP Sensor Fault';
-    return '';
-  }
+  String get currentCoilFaultCode =>
+      EngineFaults.getCoilFaultCode(
+        coilFaults,
+      );
+
+  String get currentCoilFaultLabel =>
+      EngineFaults.getCoilFaultLabel(
+        coilFaults,
+      );
+
+  String get currentCoilFaultDescription =>
+      EngineFaults.getCoilFaultDescription(
+        coilFaults,
+      );
+
 
   String get currentFaultCode {
     if (currentSensorFaultCode.isNotEmpty) return currentSensorFaultCode;
@@ -145,9 +163,75 @@ class _EngineScreenState extends State<EngineScreen>
     return '';
   }
 
+  String get currentFaultDescription {
+
+    if (currentSensorFaultCode.isNotEmpty) {
+      return EngineFaults.getSensorFaultDescription(
+        ckpFault: ckpFault,
+        cmpFault: cmpFault,
+        appFault: appFault,
+        mapFault: mapFault,
+        iatFault: iatFault,
+        ectFault: ectFault,
+        oilTempFault: oilTempFault,
+        fuelPumpFault: fuelPumpFault,
+      );
+    }
+
+    if (currentInjectorFaultCode.isNotEmpty) {
+      return EngineFaults.getInjectorFaultDescription(
+        injectorFaults,
+      );
+    }
+
+    if (currentCoilFaultCode.isNotEmpty) {
+      return EngineFaults.getCoilFaultDescription(
+        coilFaults,
+      );
+    }
+
+    return '';
+  }
+
+  String get currentFaultSymptom {
+
+    if (currentSensorFaultCode.isNotEmpty) {
+      return EngineFaults.getFaultSymptom(
+        ckpFault: ckpFault,
+        cmpFault: cmpFault,
+        appFault: appFault,
+        mapFault: mapFault,
+        iatFault: iatFault,
+        ectFault: ectFault,
+        oilTempFault: oilTempFault,
+        fuelPumpFault: fuelPumpFault,
+      );
+    }
+
+    if (currentInjectorFaultCode.isNotEmpty) {
+      return EngineFaults.getInjectorFaultSymptom(
+        injectorFaults,
+      );
+    }
+
+    if (currentCoilFaultCode.isNotEmpty) {
+      return EngineFaults.getCoilFaultSymptom(
+        coilFaults,
+      );
+    }
+
+    return '';
+  }
+
   bool get hasAnyFault {
     return ckpFault ||
         cmpFault ||
+        appFault ||
+        iatFault ||
+        mapFault ||
+        ectFault ||
+        oilTempFault ||
+        fuelPumpFault ||
         injectorFaults.containsValue(true) ||
         coilFaults.containsValue(true);
   }
@@ -315,7 +399,7 @@ class _EngineScreenState extends State<EngineScreen>
         await connectSTM32();
 
         setState(() {
-          useSTM32 = true;
+          useSTM32 = false;
         });
       },
     );
@@ -344,6 +428,74 @@ class _EngineScreenState extends State<EngineScreen>
             // 🔥 realtime từ STM32
             rpm = targetRPM;
 
+            if (appFault) {
+
+              // giới hạn ga kiểu limp mode
+              if (targetRPM > 1800) {
+                targetRPM = 1800;
+              }
+
+              // rung ga
+              rpm += sin(
+                DateTime.now().millisecondsSinceEpoch / 120,
+              ) * 35;
+
+              // delay phản hồi ga
+              rpm += (targetRPM - rpm) * 0.03;
+            }
+
+            if (mapFault) {
+
+              // giới hạn công suất turbo
+              if (targetRPM > 3200) {
+                targetRPM = 3200;
+              }
+
+              // rung nhẹ
+              rpm += sin(
+                DateTime.now().millisecondsSinceEpoch / 180,
+              ) * 12;
+            }
+
+            if (iatFault) {
+
+              // nóng khí nạp -> ECU giảm hiệu suất
+              if (targetRPM > 4000) {
+                targetRPM = 4000;
+              }
+
+              // máy hơi ì
+              rpm += sin(
+                DateTime.now().millisecondsSinceEpoch / 220,
+              ) * 8;
+            }
+            if (oilTempFault) {
+
+              // ECU fallback mode
+              rpm += sin(
+                DateTime.now().millisecondsSinceEpoch / 220,
+              ) * 5;
+
+              // phản hồi ga chậm nhẹ
+              rpm += (targetRPM - rpm) * 0.02;
+            }
+            if (fuelPumpFault) {
+
+              // hụt ga
+              rpm -= _rand.nextDouble() * 20;
+
+              // rung máy
+              rpm += sin(
+                DateTime.now().millisecondsSinceEpoch / 90,
+              ) * 15;
+
+              // giới hạn rpm
+              if (targetRPM > 3500) {
+                targetRPM = 3500;
+              }
+            }
+
+
             final visualRpm =
                 currentRpm * 0.08;
 
@@ -356,12 +508,15 @@ class _EngineScreenState extends State<EngineScreen>
               renderAngle -= 720;
             }
 
-            double diff = crankAngle - renderAngle;
+            if (useSTM32) {
 
-            if (diff > 360) diff -= 720;
-            if (diff < -360) diff += 720;
+              double diff = crankAngle - renderAngle;
 
-            renderAngle += diff * 0.03;
+              if (diff > 360) diff -= 720;
+              if (diff < -360) diff += 720;
+
+              renderAngle += diff * 0.03;
+            }
 
           } else {
 
@@ -420,6 +575,42 @@ class _EngineScreenState extends State<EngineScreen>
   void toggleCMPFault() {
     setState(() {
       cmpFault = !cmpFault;
+    });
+  }
+
+  void toggleAPPFault() {
+    setState(() {
+      appFault = !appFault;
+    });
+  }
+
+  void toggleIATBoostFault() {
+    setState(() {
+      mapFault = !mapFault;
+    });
+  }
+
+  void toggleIATFault() {
+    setState(() {
+      iatFault = !iatFault;
+    });
+  }
+
+  void toggleECTFault() {
+    setState(() {
+      ectFault = !ectFault;
+    });
+  }
+
+  void toggleOilTempFault() {
+    setState(() {
+      oilTempFault = !oilTempFault;
+    });
+  }
+
+  void toggleFuelPumpFault() {
+    setState(() {
+      fuelPumpFault = !fuelPumpFault;
     });
   }
 
@@ -647,6 +838,14 @@ class _EngineScreenState extends State<EngineScreen>
 
   void checkFireByAngle() {
     if (!isRunning) return;
+
+    if (appFault && _rand.nextDouble() < 0.08) {
+      return;
+    }
+
+    if (fuelPumpFault && _rand.nextDouble() < 0.10) {
+      return;
+    }
 
     if (ckpFault) {
       // mất đồng bộ nặng hơn theo rpm
@@ -1220,7 +1419,7 @@ class _EngineScreenState extends State<EngineScreen>
             right: 300,
             child: Center(
               child: Text(
-                'A. Cảm biến vị trí/tốc độ trục khuỷu\nB. Cảm biến vị trí trục cam\nC. Cảm biến bàn đạp ga/phanh/tốc độ xe\nD. Cảm biến nhiệt độ khí nạp tăng áp\nE. Cảm biến nhiệt độ khí nạp\nF. Cảm biến nhiệt độ nước làm mát\nG. Cảm biến nhiệt độ dầu',
+                'A. Cảm biến vị trí/tốc độ trục khuỷu\nB. Cảm biến vị trí trục cam\nC. Cảm biến bàn đạp ga/phanh/tốc độ xe\nD. Cảm biến áp suất đường ống nạp (MAP)\nE. Cảm biến nhiệt độ khí nạp\nF. Cảm biến nhiệt độ nước làm mát\nG. Cảm biến nhiệt độ dầu',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 8,
@@ -1302,10 +1501,10 @@ class _EngineScreenState extends State<EngineScreen>
           ),
           Positioned(
             left: 900,
-            bottom: 0,
+            bottom: -5,
             child: Image.asset(
               'assets/images/obd_device.png',
-              width: 170,
+              width: 190,
               height: 170,
               fit: BoxFit.contain,
             ),
@@ -1321,8 +1520,8 @@ class _EngineScreenState extends State<EngineScreen>
           ),
           if (hasAnyFault)
             Positioned(
-              right: 53,
-              bottom: 60,
+              right: 33,
+              bottom: 30,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -1334,8 +1533,8 @@ class _EngineScreenState extends State<EngineScreen>
                   const SizedBox(height: 4),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: 6,
+                      vertical: 3,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.75),
@@ -1344,13 +1543,65 @@ class _EngineScreenState extends State<EngineScreen>
                       ),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      '$currentFaultCode - $currentFaultLabel',
-                      style: const TextStyle(
-                        color: Colors.orangeAccent,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+
+                        Text(
+                          currentFaultCode,
+                          style: const TextStyle(
+                            color: Colors.orangeAccent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 2),
+
+                        Text(
+                          currentFaultLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        const SizedBox(height: 2),
+
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            currentFaultDescription,
+                            softWrap: true,
+                            maxLines: 2,
+                            overflow: TextOverflow.visible,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 7,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+
+                        SizedBox(
+                          width: 130,
+                          child: Text(
+                            currentFaultSymptom,
+                            softWrap: true,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.orangeAccent,
+                              fontSize: 5.8,
+                              fontStyle: FontStyle.italic,
+                              height: 1.15,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -1440,10 +1691,10 @@ class _EngineScreenState extends State<EngineScreen>
                         ),
                       ),
                       Positioned(
-                        left: 134,
-                        bottom: 310,
+                        left: 164,
+                        bottom: 315,
                         child: CustomPaint(
-                          size: const Size(10, 164),
+                          size: const Size(10, 130),
                           painter: ElectricPathPainterCustom1(
                             electricController.value,
                             rpm,
@@ -1451,22 +1702,11 @@ class _EngineScreenState extends State<EngineScreen>
                         ),
                       ),
                       Positioned(
-                        left: 169,
-                        bottom: 443,
+                        left: 140,
+                        bottom: 320,
                         child: CustomPaint(
                           size: const Size(10,-10),
                           painter: ElectricPathPainterCustom2(
-                            electricController.value,
-                            rpm,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 169,
-                        bottom: 350,
-                        child: CustomPaint(
-                          size: const Size(0,0),
-                          painter: ElectricPathPainterCustom21(
                             electricController.value,
                             rpm,
                           ),
@@ -1759,6 +1999,80 @@ class _EngineScreenState extends State<EngineScreen>
               child: Container(
                 width: 40,
                 height: 40,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 360,
+            top: 390,
+            child: GestureDetector(
+              onTap: toggleAPPFault,
+              child: Container(
+                width: 40,
+                height: 40,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 405,
+            top: 390,
+            child: GestureDetector(
+              onTap: toggleIATBoostFault,
+              child: Container(
+                width: 40,
+                height: 40,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 450,
+            top: 390,
+            child: GestureDetector(
+              onTap: toggleIATFault,
+              child: Container(
+                width: 20,
+                height: 40,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 485,
+            top: 390,
+            child: GestureDetector(
+              onTap: toggleECTFault,
+              child: Container(
+                width: 20,
+                height: 40,
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 520,
+            top: 390,
+            child: GestureDetector(
+              onTap: toggleOilTempFault,
+              child: Container(
+                width: 20,
+                height: 40,
+
+                // tạm thời để nhìn hitbox
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 140,
+            top: 330,
+            child: GestureDetector(
+              onTap: toggleFuelPumpFault,
+              child: Container(
+                width: 60,
+                height: 60,
                 color: Colors.transparent,
               ),
             ),

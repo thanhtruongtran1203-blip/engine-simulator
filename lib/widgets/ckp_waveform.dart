@@ -169,7 +169,7 @@ class CKPWaveformPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final cmpSignals = [
-      {'rise': 13,  'fall': 20},
+      {'rise': 15,  'fall': 21},
       {'rise': 28,  'fall': 50},
       {'rise': 58,  'fall': 80},
       {'rise': 104, 'fall': 110},

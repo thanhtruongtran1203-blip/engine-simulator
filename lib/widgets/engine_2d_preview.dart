@@ -60,7 +60,6 @@ class Engine2DPreview extends StatelessWidget {
               ),
             ),
 
-            // 📟 bảng thông số đứng yên
             CustomPaint(
               size: const Size(360, 230),
               painter: EngineStatusPainter(
