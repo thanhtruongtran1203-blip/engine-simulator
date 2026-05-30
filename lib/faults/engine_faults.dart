@@ -5,6 +5,8 @@ class EngineFaults {
 // =========================
 
 static String getSensorFaultCode({
+required int ckpFaultMode,
+required int cmpFaultMode,
 required bool ckpFault,
 required bool cmpFault,
 required bool appFault,
@@ -15,8 +17,14 @@ required bool oilTempFault,
 required bool fuelPumpFault,
 }) {
 
-if (ckpFault) return 'P0335';
-if (cmpFault) return 'P0340';
+if (ckpFaultMode == 1) return 'P0335';
+if (ckpFaultMode == 2) return 'P0337';
+if (ckpFaultMode == 3) return 'P0338';
+if (ckpFaultMode == 4) return 'P0339';
+if (cmpFaultMode == 1) return 'P0340';
+if (cmpFaultMode == 2) return 'P0341';
+if (cmpFaultMode == 3) return 'P0342';
+if (cmpFaultMode == 4) return 'P0344';
 if (appFault) return 'P2138';
 if (mapFault) return 'P0097';
 if (iatFault) return 'P0113';
@@ -97,15 +105,15 @@ return 'Tương quan cảm biến vị trí bàn đạp ga';
 }
 
 if (mapFault) {
-return 'Mạch cảm biến áp suất đường ống nạp';
+return 'Tín hiệu cảm biến áp suất đường ống nạp thấp';
 }
 
 if (iatFault) {
-return 'Mạch cảm biến nhiệt độ khí nạp cao';
+return 'Tín hiệu cảm biến nhiệt độ khí nạp cao';
 }
 
 if (ectFault) {
-return 'Mạch cảm biến nhiệt độ nước làm mát cao';
+return 'Tín hiệu cảm biến nhiệt độ nước làm mát cao';
 }
 
 if (oilTempFault) {
@@ -124,7 +132,9 @@ return '';
 // =========================
 
 static String getFaultSymptom({
+required int ckpFaultMode,
 required bool ckpFault,
+required int cmpFaultMode,
 required bool cmpFault,
 required bool appFault,
 required bool mapFault,
@@ -134,12 +144,37 @@ required bool oilTempFault,
 required bool fuelPumpFault,
 }) {
 
-if (ckpFault) {
-return 'Động cơ rung mạnh, khó khởi động';
+if (ckpFaultMode == 1) {
+  return 'Động cơ chết máy, mất tín hiệu CKP';
 }
 
-if (cmpFault) {
-return 'Động cơ rung nhẹ, bỏ máy';
+if (ckpFaultMode == 2) {
+  return 'RPM dao động, khó khởi động';
+}
+
+if (ckpFaultMode == 3) {
+  return 'RPM tăng bất thường, đánh lửa sai';
+}
+
+if (ckpFaultMode == 4) {
+  return 'Động cơ rung giật ngẫu nhiên';
+}
+
+
+if (cmpFaultMode == 1) {
+  return 'Động cơ rung nhẹ, sai đồng bộ CMP';
+}
+
+if (cmpFaultMode == 2) {
+  return 'Đánh lửa sai thời điểm nhẹ';
+}
+
+if (cmpFaultMode == 3) {
+  return 'Tín hiệu CMP yếu, hụt ga';
+}
+
+if (cmpFaultMode == 4) {
+  return 'Động cơ rung giật ngẫu nhiên';
 }
 
 if (appFault) {
@@ -273,19 +308,19 @@ Map<int, bool> coilFaults,
 ) {
 
 if (coilFaults[1] == true) {
-return 'Lỗi bob-bin đánh lửa A';
+return 'Lỗi bob-bin đánh lửa 1';
 }
 
 if (coilFaults[2] == true) {
-return 'Lỗi bob-bin đánh lửa B';
+return 'Lỗi bob-bin đánh lửa 2';
 }
 
 if (coilFaults[3] == true) {
-return 'Lỗi bob-bin đánh lửa C';
+return 'Lỗi bob-bin đánh lửa 3';
 }
 
 if (coilFaults[4] == true) {
-return 'Lỗi bob-bin đánh lửa D';
+return 'Lỗi bob-bin đánh lửa 4';
 }
 
 return '';
