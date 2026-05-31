@@ -10,12 +10,12 @@ class EngineStatusPainter extends CustomPainter {
   });
 
   double getSparkAdvance(double rpm) {
-    if (rpm < 900) return 10;
-    if (rpm < 1500) return 16;
+    if (rpm < 900) return 7.5;
+    if (rpm < 1500) return 15;
     if (rpm < 2200) return 22;
     if (rpm < 3000) return 28;
-    if (rpm < 4000) return 32;
-    return 36;
+    if (rpm < 4000) return 35;
+    return 40;
   }
 
   double getInjectionAdvance(double rpm) {
@@ -28,12 +28,12 @@ class EngineStatusPainter extends CustomPainter {
   }
 
   double getInjectionPulseWidth(double rpm) {
-    if (rpm < 900) return 2.2;
+    if (rpm < 900) return 2.7;
     if (rpm < 1500) return 2.8;
     if (rpm < 2200) return 3.2;
     if (rpm < 3000) return 3.8;
     if (rpm < 4000) return 4.5;
-    return 5.2;
+    return 5;
   }
 
   @override
@@ -53,7 +53,7 @@ class EngineStatusPainter extends CustomPainter {
     final inj4 = (inj1 + 360) % 720;
 
     final lines = [
-      'RPM ${rpm.toInt()}   CYL  SPK   INJ   PW',
+      'RPM ${rpm.toInt()}  CYL   SPK   INJ   PW',
 
       'ADV        1    '
           '${spark1.toStringAsFixed(0)}°  '

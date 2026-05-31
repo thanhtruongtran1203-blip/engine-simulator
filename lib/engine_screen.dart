@@ -1175,7 +1175,6 @@
             ),
             const Positioned(
               top: 100,
-              left: 0,
               right: 650,
               child: Center(
                 child: Text(
