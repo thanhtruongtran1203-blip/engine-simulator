@@ -12,8 +12,8 @@ class Engine2DPreview extends StatelessWidget {
   final int injectorCylinder;
   final bool isRunning;
   final double rpm;
-  final Map<int, bool> injectorFaults;
-  final Map<int, bool> coilFaults;
+  final Map<int, int> injectorFaultModes;
+  final Map<int, int> coilFaultModes;
   final Offset shakeOffset;
   final bool ckpFault;
   final bool cmpFault;
@@ -25,8 +25,8 @@ class Engine2DPreview extends StatelessWidget {
     required this.rpm,
     required this.injectorCylinder,
     required this.isRunning,
-    required this.injectorFaults,
-    required this.coilFaults,
+    required this.injectorFaultModes,
+    required this.coilFaultModes,
     required this.shakeOffset,
     required this.ckpFault,
     required this.cmpFault,
@@ -51,8 +51,8 @@ class Engine2DPreview extends StatelessWidget {
                   activeSparkCylinders: activeSparkCylinders,
                   injectorCylinder: injectorCylinder,
                   isRunning: isRunning,
-                  injectorFaults: injectorFaults,
-                  coilFaults: coilFaults,
+                  injectorFaultModes: injectorFaultModes,
+                  coilFaultModes: coilFaultModes,
                   ckpFault: ckpFault,
                   cmpFault: cmpFault,
                   rpm: rpm,

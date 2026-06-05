@@ -12,8 +12,10 @@
   import 'widgets/engine_2d_preview.dart';
   import 'widgets/engine_gauges.dart';
   import 'widgets/engine_start_button.dart';
-  import 'widgets/ckp_waveform.dart';
+  import 'widgets/ckp_waveform_painter.dart';
   import 'faults/engine_faults.dart';
+  import 'waveform_screen.dart';
+  import 'controllers/fault_controller.dart';
   
   class EngineScreen extends StatefulWidget {
     const EngineScreen({super.key});
@@ -34,29 +36,8 @@
     bool isRunning = false;
     double simScale = 0.12;
     double prevAngle = 0;
-    int ckpFaultMode = 0;
-    int cmpFaultMode = 0;
     double targetRPM = 1000;
-    bool appFault = false;
-    bool mapFault = false;
-    bool iatFault = false;
-    bool ectFault = false;
-    bool oilTempFault = false;
-    bool fuelPumpFault = false;
-  
-    final Map<int, bool> injectorFaults = {
-      1: false,
-      2: false,
-      3: false,
-      4: false,
-    };
-  
-    final Map<int, bool> coilFaults = {
-      1: false,
-      2: false,
-      3: false,
-      4: false,
-    };
+    final faultController = FaultController();
   
     Timer? engineLoop;
     String buffer = '';
@@ -90,204 +71,13 @@
       3: 540.0,
     };
   
-    bool hasInjectorFault(int cyl) => injectorFaults[cyl] ?? false;
+    bool hasInjectorFault(int cyl) =>
+        (faultController.injectorFaultModes[cyl] ?? 0) != 0;
   
-    bool hasCoilFault(int cyl) => coilFaults[cyl] ?? false;
-
-    bool get cmpFault => cmpFaultMode != 0;
+    bool hasCoilFault(int cyl) =>
+        (faultController.coilFaultModes[cyl] ?? 0) != 0;
   
-    String get currentSensorFaultCode =>
-        EngineFaults.getSensorFaultCode(
-          ckpFaultMode: ckpFaultMode,
-          cmpFaultMode: cmpFaultMode,
-          ckpFault: ckpFault,
-          cmpFault: cmpFault,
-          appFault: appFault,
-          mapFault: mapFault,
-          iatFault: iatFault,
-          ectFault: ectFault,
-          oilTempFault: oilTempFault,
-          fuelPumpFault: fuelPumpFault,
-        );
-  
-    String get currentSensorFaultLabel =>
-        EngineFaults.getSensorFaultLabel(
-          ckpFault: ckpFault,
-          cmpFault: cmpFault,
-          appFault: appFault,
-          mapFault: mapFault,
-          iatFault: iatFault,
-          ectFault: ectFault,
-          oilTempFault: oilTempFault,
-          fuelPumpFault: fuelPumpFault,
-        );
-  
-    String get currentInjectorFaultCode =>
-        EngineFaults.getInjectorFaultCode(
-          injectorFaults,
-        );
-  
-    String get currentInjectorFaultLabel =>
-        EngineFaults.getInjectorFaultLabel(
-          injectorFaults,
-        );
-  
-    String get currentInjectorFaultDescription =>
-        EngineFaults.getInjectorFaultDescription(
-          injectorFaults,
-        );
-  
-    String get currentCoilFaultCode =>
-        EngineFaults.getCoilFaultCode(
-          coilFaults,
-        );
-  
-    String get currentCoilFaultLabel =>
-        EngineFaults.getCoilFaultLabel(
-          coilFaults,
-        );
-  
-    String get currentCoilFaultDescription =>
-        EngineFaults.getCoilFaultDescription(
-          coilFaults,
-        );
-  
-  
-    String get currentFaultCode {
-      if (currentSensorFaultCode.isNotEmpty) return currentSensorFaultCode;
-      if (currentInjectorFaultCode.isNotEmpty) return currentInjectorFaultCode;
-      if (currentCoilFaultCode.isNotEmpty) return currentCoilFaultCode;
-      return '';
-    }
-  
-    String get currentFaultLabel {
-      if (currentSensorFaultLabel.isNotEmpty) return currentSensorFaultLabel;
-      if (currentInjectorFaultLabel.isNotEmpty) return currentInjectorFaultLabel;
-      if (currentCoilFaultLabel.isNotEmpty) return currentCoilFaultLabel;
-      return '';
-    }
-  
-    String get currentFaultDescription {
-  
-      if (currentSensorFaultCode.isNotEmpty) {
-        return EngineFaults.getSensorFaultDescription(
-          ckpFault: ckpFault,
-          cmpFault: cmpFault,
-          appFault: appFault,
-          mapFault: mapFault,
-          iatFault: iatFault,
-          ectFault: ectFault,
-          oilTempFault: oilTempFault,
-          fuelPumpFault: fuelPumpFault,
-        );
-      }
-  
-      if (currentInjectorFaultCode.isNotEmpty) {
-        return EngineFaults.getInjectorFaultDescription(
-          injectorFaults,
-        );
-      }
-  
-      if (currentCoilFaultCode.isNotEmpty) {
-        return EngineFaults.getCoilFaultDescription(
-          coilFaults,
-        );
-      }
-  
-      return '';
-    }
-  
-    String get currentFaultSymptom {
-  
-      if (currentSensorFaultCode.isNotEmpty) {
-        return EngineFaults.getFaultSymptom(
-          ckpFaultMode: ckpFaultMode,
-          ckpFault: ckpFault,
-          cmpFaultMode: cmpFaultMode,
-          cmpFault: cmpFault,
-          appFault: appFault,
-          mapFault: mapFault,
-          iatFault: iatFault,
-          ectFault: ectFault,
-          oilTempFault: oilTempFault,
-          fuelPumpFault: fuelPumpFault,
-        );
-      }
-  
-      if (currentInjectorFaultCode.isNotEmpty) {
-        return EngineFaults.getInjectorFaultSymptom(
-          injectorFaults,
-        );
-      }
-  
-      if (currentCoilFaultCode.isNotEmpty) {
-        return EngineFaults.getCoilFaultSymptom(
-          coilFaults,
-        );
-      }
-  
-      return '';
-    }
-  
-    bool get hasAnyFault {
-      return ckpFault ||
-          cmpFault ||
-          appFault ||
-          iatFault ||
-          mapFault ||
-          ectFault ||
-          oilTempFault ||
-          fuelPumpFault ||
-          injectorFaults.containsValue(true) ||
-          coilFaults.containsValue(true);
-    }
-  
-    bool get cmpGlitchActive {
-      if (!cmpFault || !isRunning) return false;
-      final t = DateTime.now().millisecondsSinceEpoch ~/ 180;
-      return t % 5 == 0;
-    }
-  
-    Offset get faultShakeOffset {
-      if (!isRunning) return Offset.zero;
-  
-      final t = DateTime.now().millisecondsSinceEpoch / 1000.0;
-
-      // CKP fault
-      if (ckpFaultMode == 2) {
-
-        return Offset(
-          sin(t * 45) * 2.5,
-          cos(t * 38) * 1.8,
-        );
-      }
-
-      if (ckpFaultMode == 3) {
-
-        return Offset(
-          sin(t * 55) * 3.2,
-          cos(t * 42) * 2.0,
-        );
-      }
-
-      if (ckpFaultMode == 4) {
-
-        return Offset(
-          sin(t * 60) * 4.0,
-          cos(t * 50) * 2.5,
-        );
-      }
-  
-      if (cmpFault) {
-        return Offset(sin(t * 38) * 1.8, cos(t * 29) * 1.1);
-      }
-  
-      if (injectorFaults.containsValue(true) || coilFaults.containsValue(true)) {
-        return Offset(sin(t * 42) * 2.2, cos(t * 31) * 1.4);
-      }
-  
-      return Offset.zero;
-    }
+    bool get cmpFault => faultController.cmpFaultMode != 0;
   
     double get currentRpm {
       return rpm.clamp(500, 6000);
@@ -335,7 +125,7 @@
         );
   
         stm32TcpSub = stm32Socket!.listen(
-          (data) {
+              (data) {
             final chunk = String.fromCharCodes(data);
             onDataReceived(chunk);
           },
@@ -454,12 +244,12 @@
   
             lastRenderTime = now;
   
-            if (ckpFaultMode != 1) {
+            if (faultController.ckpFaultMode != 1) {
   
               // 🔥 realtime từ STM32
               rpm = targetRPM;
   
-              if (appFault) {
+              if (faultController.appFault) {
   
                 // giới hạn ga kiểu limp mode
                 if (targetRPM > 1800) {
@@ -475,7 +265,7 @@
                 rpm += (targetRPM - rpm) * 0.03;
               }
   
-              if (mapFault) {
+              if (faultController.mapFault) {
   
                 // giới hạn công suất turbo
                 if (targetRPM > 3200) {
@@ -488,7 +278,7 @@
                 ) * 12;
               }
   
-              if (iatFault) {
+              if (faultController.iatFault) {
   
                 // nóng khí nạp -> ECU giảm hiệu suất
                 if (targetRPM > 4000) {
@@ -500,7 +290,7 @@
                   DateTime.now().millisecondsSinceEpoch / 220,
                 ) * 8;
               }
-              if (oilTempFault) {
+              if (faultController.oilTempFault) {
   
                 // ECU fallback mode
                 rpm += sin(
@@ -510,7 +300,7 @@
                 // phản hồi ga chậm nhẹ
                 rpm += (targetRPM - rpm) * 0.02;
               }
-              if (fuelPumpFault) {
+              if (faultController.fuelPumpFault) {
   
                 // hụt ga
                 rpm -= _rand.nextDouble() * 20;
@@ -546,7 +336,7 @@
                 if (diff > 360) diff -= 720;
                 if (diff < -360) diff += 720;
   
-                renderAngle += diff * 0.03;
+                renderAngle += diff * 0.015;
               }
   
             } else {
@@ -563,47 +353,58 @@
                 DateTime.now().millisecondsSinceEpoch / 80,
               ) * 5;
             }
-            // P0337
-            if (ckpFaultMode == 2) {
+  
+            // P0336
+            if (faultController.ckpFaultMode == 2) {
   
               rpm += sin(
                 DateTime.now().millisecondsSinceEpoch / 120,
               ) * 80;
             }
   
-  // P0338
-                if (ckpFaultMode == 3) {
+            // P0337
+            if (faultController.ckpFaultMode == 3) {
   
-                  rpm += _rand.nextDouble() * 120;
-                }
+              rpm *= 0.96;
   
-  // P0339
-                if (ckpFaultMode == 4) {
-  
-                  if (_rand.nextDouble() < 0.08) {
-                    rpm -= 120;
-                  }
-                }
-  
-        if (ckpFaultMode == 1 && rpm < 250) {
-          rpm *= 0.9;
-  
-          if (ckpFault && rpm < 300) {
-            rpm *= 0.92;
-  
-            if (rpm < 520) {
-              rpm = 500; // 🔥 giữ min hợp lệ
-              isRunning = false;
-              electricController.stop();
+              rpm += sin(
+                DateTime.now().millisecondsSinceEpoch / 140,
+              ) * 20;
             }
-          }
-        }
-        if (ckpFault && rpm > 300 && _rand.nextDouble() < 0.2) {
-        }
-        checkFireByAngle();
   
-        setState(() {});
-      });
+            // P0338
+            if (faultController.ckpFaultMode == 4) {
+  
+              rpm += _rand.nextDouble() * 120;
+            }
+  
+            // P0339
+            if (faultController.ckpFaultMode == 5) {
+  
+              if (_rand.nextDouble() < 0.08) {
+                rpm -= 120;
+              }
+            }
+  
+            if (faultController.ckpFaultMode == 1 && rpm < 250) {
+              rpm *= 0.9;
+  
+              if (ckpFault && rpm < 300) {
+                rpm *= 0.92;
+  
+                if (rpm < 520) {
+                  rpm = 500; // 🔥 giữ min hợp lệ
+                  isRunning = false;
+                  electricController.stop();
+                }
+              }
+            }
+            if (ckpFault && rpm > 300 && _rand.nextDouble() < 0.2) {
+            }
+            checkFireByAngle();
+  
+            setState(() {});
+          });
     }
   
   
@@ -618,92 +419,13 @@
       electricController.dispose();
       super.dispose();
     }
-
-    void toggleCMPFault() {
-
-      setState(() {
-
-        cmpFaultMode++;
-
-        if (cmpFaultMode > 4) {
-          cmpFaultMode = 0;
-        }
-      });
-    }
   
-    void toggleAPPFault() {
-      setState(() {
-        appFault = !appFault;
-      });
-    }
-  
-    void toggleIATBoostFault() {
-      setState(() {
-        mapFault = !mapFault;
-      });
-    }
-  
-    void toggleIATFault() {
-      setState(() {
-        iatFault = !iatFault;
-      });
-    }
-  
-    void toggleECTFault() {
-      setState(() {
-        ectFault = !ectFault;
-      });
-    }
-  
-    void toggleOilTempFault() {
-      setState(() {
-        oilTempFault = !oilTempFault;
-      });
-    }
-  
-    void toggleFuelPumpFault() {
-      setState(() {
-        fuelPumpFault = !fuelPumpFault;
-      });
-    }
-  
-    void toggleCKPFault() {
-  
-      setState(() {
-  
-        ckpFaultMode++;
-  
-        if (ckpFaultMode > 4) {
-          ckpFaultMode = 0;
-        }
-      });
-    }
-    bool get ckpFault => ckpFaultMode != 0;
-  
-    void toggleCoilFault(int cyl) {
-      setState(() {
-        coilFaults[cyl] = !(coilFaults[cyl] ?? false);
-  
-        if ((coilFaults[cyl] ?? false) && spark == cyl) {
-          spark = 0;
-            activeSparkCylinders.clear();
-        }
-      });
-    }
-    void toggleInjectorFault(int cyl) {
-      setState(() {
-        injectorFaults[cyl] = !(injectorFaults[cyl] ?? false);
-  
-        if ((injectorFaults[cyl] ?? false) && injector == cyl) {
-          injector = 0;
-        }
-      });
-    }
+    bool get ckpFault => faultController.ckpFaultMode != 0;
   
   
     void startEngine() {
   
-      if (ckpFaultMode == 1) return;
+      if (faultController.ckpFaultMode == 1) return;
   
       setState(() {
   
@@ -716,8 +438,8 @@
         prevAngle = 719.9;
         injector = 0;
         spark = 0;
-        rpm = 500;
-        targetRPM = 500;
+        rpm = 1000;
+        targetRPM = 1000;
         activeSparkCylinders.clear();
       });
   
@@ -759,7 +481,7 @@
   
     void parseFrame(String data)
     {
-      if (!useSTM32 || ckpFaultMode == 1) return;
+      if (!useSTM32 || faultController.ckpFaultMode == 1) return;
   
       final reg =
       RegExp(r'<(\d+),(-?\d+)>');
@@ -807,20 +529,38 @@
       }
   
       _lastInjectorTrigger[cyl] = now;
-
-      if (ckpFaultMode == 1) return;
   
-      if (hasInjectorFault(cyl)) {
-        final now = DateTime.now().millisecondsSinceEpoch;
+      if (faultController.ckpFaultMode == 1) return;
   
-        if (now - _lastMisfireTime > 120 && _rand.nextDouble() < 0.7) {
-          _lastMisfireTime = now;
-        }
+      final mode =
+          faultController.injectorFaultModes[cyl] ?? 0;
+  
+      // P020x
+      if (mode == 1) {
+  
+        rpm -= 25 + _rand.nextDouble() * 20;
   
         return;
       }
   
-      if (cmpGlitchActive && cyl.isEven) return;
+      // P0261
+      if (mode == 2) {
+  
+        if (_rand.nextDouble() < 0.5) {
+  
+          rpm -= 10 + _rand.nextDouble() * 10;
+  
+          return;
+        }
+      }
+  
+      // P0262
+      if (mode == 3) {
+  
+        rpm += _rand.nextDouble() * 25;
+      }
+  
+      if (faultController.cmpGlitchActive(isRunning) && cyl.isEven) return;
   
       setState(() {
         injector = cyl;
@@ -838,15 +578,15 @@
   
       _lastSparkTrigger[cyl] = now;
   
-      if (ckpFaultMode == 1) return;
+      if (faultController.ckpFaultMode == 1) return;
   
-      if (hasCoilFault(cyl)) {
+      final mode =
+          faultController.coilFaultModes[cyl] ?? 0;
   
-        final now = DateTime.now().millisecondsSinceEpoch;
+      // P035x
+      if (mode == 1) {
   
-        if (now - _lastMisfireTime > 120 && _rand.nextDouble() < 0.8) {
-          _lastMisfireTime = now;
-        }
+        rpm -= 30 + _rand.nextDouble() * 20;
   
         setState(() {
           spark = 0;
@@ -855,7 +595,28 @@
         return;
       }
   
-      if (cmpGlitchActive && cyl == 3) return;
+      // P2300
+      if (mode == 2) {
+  
+        rpm -= _rand.nextDouble() * 10;
+  
+        if (_rand.nextDouble() < 0.5) {
+  
+          setState(() {
+            spark = 0;
+          });
+  
+          return;
+        }
+      }
+  
+      // P2301
+      if (mode == 3) {
+  
+        rpm += _rand.nextDouble() * 40;
+      }
+  
+      if (faultController.cmpGlitchActive(isRunning) && cyl == 3) return;
   
       final id = ++sparkPulseId;
   
@@ -886,15 +647,15 @@
     void checkFireByAngle() {
       if (!isRunning) return;
   
-      if (appFault && _rand.nextDouble() < 0.08) {
+      if (faultController.appFault && _rand.nextDouble() < 0.08) {
         return;
       }
   
-      if (fuelPumpFault && _rand.nextDouble() < 0.10) {
+      if (faultController.fuelPumpFault && _rand.nextDouble() < 0.10) {
         return;
       }
   
-      if (ckpFaultMode == 4) {
+      if (faultController.ckpFaultMode == 4) {
   
         double failRate =
         (rpm / 6000).clamp(0.2, 0.8);
@@ -903,18 +664,18 @@
           return;
         }
       }
-
+  
       // CMP P0341
-      if (cmpFaultMode == 2) {
-
+      if (faultController.cmpFaultMode == 2) {
+  
         rpm += sin(
           DateTime.now().millisecondsSinceEpoch / 150,
         ) * 25;
       }
-
-// CMP P0344
-      if (cmpFaultMode == 4) {
-
+  
+      // CMP P0344
+      if (faultController.cmpFaultMode == 4) {
+  
         if (_rand.nextDouble() < 0.05) {
           rpm -= 80;
         }
@@ -998,7 +759,11 @@
         left: previewLeft + centerX - 18,
         top: previewTop + 26,
         child: GestureDetector(
-          onTap: () => toggleCoilFault(cylinder),
+          onTap: () {
+            setState(() {
+              faultController.toggleCoilFault(cylinder);
+            });
+          },
           child: Container(
             width: 36,
             height: 50,
@@ -1025,8 +790,24 @@
                 onTap: () {
                   Navigator.push(
                     context,
+  
                     MaterialPageRoute(
-                      builder: (_) => const Engine3DScreen(),
+                      builder: (_) => WaveformScreen(
+  
+                        getAngle: () => renderAngle,
+  
+                        getRPM: () => currentRpm,
+  
+                        getRunning: () => isRunning,
+  
+                        getCKPFault: () => ckpFault,
+  
+                        getCMPFault: () => cmpFault,
+  
+                        getCKPNoSignal: () => faultController.ckpFaultMode == 1,
+  
+                        coilFaultModes: faultController.coilFaultModes,
+                      ),
                     ),
                   );
                 },
@@ -1074,14 +855,6 @@
                     bottomLeft: Radius.circular(16),
                     bottomRight: Radius.circular(16),
                   ),
-                  border: Border.all(color: Colors.white24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.22),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -1099,26 +872,13 @@
                             activeSparkCylinders: activeSparkCylinders,
                             injectorCylinder: injector,
                             isRunning: isRunning,
-                            injectorFaults: injectorFaults,
-                            coilFaults: coilFaults,
-                            shakeOffset: faultShakeOffset,
+                            injectorFaultModes: faultController.injectorFaultModes,
+                            coilFaultModes: faultController.coilFaultModes,
+                            shakeOffset:
+                            faultController.faultShakeOffset(isRunning),
                             ckpFault: ckpFault,
                             cmpFault: cmpFault,
                             rpm: currentRpm,
-                          ),
-                        ),
-                        Positioned(
-                          left: 10,
-                          right: 10,
-                          bottom: 0,
-                          child: SizedBox(
-                            height: 90,
-                            child: CustomPaint(
-                              painter: CKPWaveformPainter(
-                                crankAngle: renderAngle,
-                                rpm: currentRpm,
-                              ),
-                            ),
                           ),
                         ),
                         buildCoilHitArea(
@@ -1175,7 +935,7 @@
             ),
             const Positioned(
               top: 100,
-              right: 650,
+              right: 615,
               child: Center(
                 child: Text(
                   'Hệ thống phun xăng điện tử',
@@ -1502,7 +1262,7 @@
                 child: RpmGauge(rpm: displayRPM),
               ),
             ),
-            if (hasAnyFault)
+            if (faultController.hasAnyFault)
               Positioned(
                 left: 760,
                 bottom: 30,
@@ -1565,8 +1325,8 @@
               ),
             ),
             Positioned(
-              left: 900,
-              bottom: -5,
+              left: 720,
+              bottom: 430,
               child: Image.asset(
                 'assets/images/obd_device.png',
                 width: 190,
@@ -1583,10 +1343,10 @@
                 child: SpeedGauge(speed: displayRPM / 40),
               ),
             ),
-            if (hasAnyFault)
+            if (faultController.hasAnyFault)
               Positioned(
-                right: 33,
-                bottom: 30,
+                right: 212,
+                bottom: 462,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -1614,7 +1374,7 @@
                         children: [
   
                           Text(
-                            currentFaultCode,
+                            faultController.currentFaultCode,
                             style: const TextStyle(
                               color: Colors.orangeAccent,
                               fontSize: 10,
@@ -1625,7 +1385,7 @@
                           const SizedBox(height: 2),
   
                           Text(
-                            currentFaultLabel,
+                            faultController.currentFaultLabel,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 8,
@@ -1638,7 +1398,7 @@
                           SizedBox(
                             width: 120,
                             child: Text(
-                              currentFaultDescription,
+                              faultController.currentFaultDescription,
                               softWrap: true,
                               maxLines: 2,
                               overflow: TextOverflow.visible,
@@ -1654,7 +1414,24 @@
                           SizedBox(
                             width: 130,
                             child: Text(
-                              currentFaultSymptom,
+                              'Nguyên nhân: $faultController.currentFaultCause',
+                              softWrap: true,
+                              maxLines: 2,
+                              overflow: TextOverflow.visible,
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 6,
+                                height: 1.15,
+                              ),
+                            ),
+                          ),
+  
+                          const SizedBox(height: 2),
+  
+                          SizedBox(
+                            width: 130,
+                            child: Text(
+                              faultController.currentFaultSymptom,
                               softWrap: true,
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
@@ -1994,7 +1771,11 @@
               bottom: 425,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => toggleInjectorFault(1),
+                onTap: () {
+                  setState(() {
+                    faultController.toggleInjectorFault(1);
+                  });
+                },
                 child: Container(
                   width: 36,
                   height: 46,
@@ -2008,7 +1789,11 @@
               bottom: 425,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => toggleInjectorFault(2),
+                onTap: () {
+                  setState(() {
+                    faultController.toggleInjectorFault(2);
+                  });
+                },
                 child: Container(
                   width: 36,
                   height: 46,
@@ -2022,7 +1807,11 @@
               bottom: 425,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => toggleInjectorFault(3),
+                onTap: () {
+                  setState(() {
+                    faultController.toggleInjectorFault(3);
+                  });
+                },
                 child: Container(
                   width: 36,
                   height: 46,
@@ -2036,7 +1825,11 @@
               bottom: 425,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => toggleInjectorFault(4),
+                onTap: () {
+                  setState(() {
+                    faultController.toggleInjectorFault(4);
+                  });
+                },
                 child: Container(
                   width: 36,
                   height: 46,
@@ -2048,7 +1841,11 @@
               left: 270,
               top: 390,
               child: GestureDetector(
-                onTap: toggleCKPFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleCKPFault();
+                  });
+                },
                 child: Container(
                   width: 40,
                   height: 40,
@@ -2060,7 +1857,11 @@
               left: 320,
               top: 390,
               child: GestureDetector(
-                onTap: toggleCMPFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleCMPFault();
+                  });
+                },
                 child: Container(
                   width: 40,
                   height: 40,
@@ -2072,7 +1873,11 @@
               left: 360,
               top: 390,
               child: GestureDetector(
-                onTap: toggleAPPFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleAPPFault();
+                  });
+                },
                 child: Container(
                   width: 40,
                   height: 40,
@@ -2084,7 +1889,11 @@
               left: 405,
               top: 390,
               child: GestureDetector(
-                onTap: toggleIATBoostFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleMAPFault();
+                  });
+                },
                 child: Container(
                   width: 40,
                   height: 40,
@@ -2096,7 +1905,11 @@
               left: 450,
               top: 390,
               child: GestureDetector(
-                onTap: toggleIATFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleIATFault();
+                  });
+                },
                 child: Container(
                   width: 20,
                   height: 40,
@@ -2108,7 +1921,11 @@
               left: 485,
               top: 390,
               child: GestureDetector(
-                onTap: toggleECTFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleECTFault();
+                  });
+                },
                 child: Container(
                   width: 20,
                   height: 40,
@@ -2120,7 +1937,11 @@
               left: 520,
               top: 390,
               child: GestureDetector(
-                onTap: toggleOilTempFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleOilTempFault();
+                  });
+                },
                 child: Container(
                   width: 20,
                   height: 40,
@@ -2134,7 +1955,11 @@
               left: 140,
               top: 330,
               child: GestureDetector(
-                onTap: toggleFuelPumpFault,
+                onTap: () {
+                  setState(() {
+                    faultController.toggleFuelPumpFault();
+                  });
+                },
                 child: Container(
                   width: 60,
                   height: 60,

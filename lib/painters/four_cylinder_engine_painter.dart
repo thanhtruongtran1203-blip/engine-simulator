@@ -8,8 +8,8 @@ class FourCylinderEnginePainter extends CustomPainter {
   final Set<int> activeSparkCylinders;
   final int injectorCylinder;
   final bool isRunning;
-  final Map<int, bool> injectorFaults;
-  final Map<int, bool> coilFaults;
+  final Map<int, int> injectorFaultModes;
+  final Map<int, int> coilFaultModes;
   final bool ckpFault;
   final bool cmpFault;
   final double rpm;
@@ -94,8 +94,8 @@ class FourCylinderEnginePainter extends CustomPainter {
     required this.activeSparkCylinders,
     required this.injectorCylinder,
     required this.isRunning,
-    required this.injectorFaults,
-    required this.coilFaults,
+    required this.injectorFaultModes,
+    required this.coilFaultModes,
     required this.ckpFault,
     required this.cmpFault,
     required this.rpm,
@@ -103,6 +103,11 @@ class FourCylinderEnginePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+
+    canvas.save();
+
+    canvas.translate(0, 0);
+
     canvas.drawRect(
       Offset.zero & size,
       Paint()..color = Colors.black,
@@ -155,8 +160,9 @@ class FourCylinderEnginePainter extends CustomPainter {
 
     for (int i = 0; i < 4; i++) {
       final cylinder = cylinders[i];
-      final bool hasInjectorFault = injectorFaults[cylinder] ?? false;
-      final bool hasCoilFault = coilFaults[cylinder] ?? false;
+      final bool hasInjectorFault = (injectorFaultModes[cylinder] ?? 0) != 0;
+      final bool hasCoilFault =
+          (coilFaultModes[cylinder] ?? 0) != 0;
       final bool effectiveInjectorOn =
           injectorCylinder == cylinder && !hasInjectorFault;
       final bool hasMixture = !hasInjectorFault;
@@ -192,8 +198,8 @@ class FourCylinderEnginePainter extends CustomPainter {
 
       if (ckpFault ||
           cmpFault ||
-          (injectorFaults[cylinder] ?? false) ||
-          (coilFaults[cylinder] ?? false)) {
+          (injectorFaultModes[cylinder] ?? 0) != 0 ||
+          (coilFaultModes[cylinder] ?? 0) != 0) {
         _drawCheckEngineWarning(
           canvas,
           centerX: centers[i],
@@ -201,6 +207,7 @@ class FourCylinderEnginePainter extends CustomPainter {
         );
       }
     }
+    canvas.restore();
   }
   void _drawCheckEngineWarning(
       Canvas canvas, {
@@ -1726,7 +1733,8 @@ class FourCylinderEnginePainter extends CustomPainter {
         oldDelegate.isRunning != isRunning ||
         oldDelegate.ckpFault != ckpFault ||
         oldDelegate.cmpFault != cmpFault ||
-        oldDelegate.injectorFaults.toString() != injectorFaults.toString() ||
-        oldDelegate.coilFaults.toString() != coilFaults.toString();
+        oldDelegate.injectorFaultModes.toString() != injectorFaultModes.toString() ||
+        oldDelegate.coilFaultModes.toString() !=
+            coilFaultModes.toString();
   }
 }

@@ -4,7 +4,7 @@
         android:name="android.hardware.usb.host" />
 
     <application
-        android:label="engine_simulator_app"
+        android:label="Engine Simulator"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

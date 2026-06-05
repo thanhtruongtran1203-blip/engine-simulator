@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
-import 'brand_screen.dart';
+
+import 'splash_screen.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(const EngineApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class EngineApp extends StatelessWidget {
+  const EngineApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Engine Simulator',
-      theme: ThemeData.dark(),
-      home: const BrandScreen(),
+      title: 'K15B Engine Simulator',
+
+      theme: ThemeData.dark().copyWith(
+        useMaterial3: false,
+      ),
+
+      home: const SplashScreen(),
     );
   }
 }
