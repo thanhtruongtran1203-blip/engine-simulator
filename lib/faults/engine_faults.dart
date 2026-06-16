@@ -5,78 +5,82 @@ class EngineFaults {
 // =========================
 
   static String getSensorFaultCode({
+
     required int ckpFaultMode,
     required int cmpFaultMode,
+
     required bool ckpFault,
     required bool cmpFault,
+
     required bool appFault,
-    required bool mapFault,
-    required bool iatFault,
-    required bool ectFault,
-    required bool oilTempFault,
-    required bool fuelPumpFault,
+
+    required int mapFaultMode,
+    required int iatFaultMode,
+    required int ectFaultMode,
+
   }) {
 
     if (ckpFaultMode == 1) return 'P0335';
     if (ckpFaultMode == 2) return 'P0336';
-    if (ckpFaultMode == 3) return 'P0337';
-    if (ckpFaultMode == 4) return 'P0338';
-    if (ckpFaultMode == 5) return 'P0339';
     if (cmpFaultMode == 1) return 'P0340';
-    if (cmpFaultMode == 2) return 'P0341';
-    if (cmpFaultMode == 3) return 'P0342';
-    if (cmpFaultMode == 4) return 'P0344';
     if (appFault) return 'P2138';
-    if (mapFault) return 'P0097';
-    if (iatFault) return 'P0113';
-    if (ectFault) return 'P0118';
-    if (oilTempFault) return 'P0195';
-    if (fuelPumpFault) return 'P0230';
+    if (mapFaultMode == 1) return 'P0107';
+    if (mapFaultMode == 2) return 'P0108';
+    if (iatFaultMode == 1) return 'P0112';
+    if (iatFaultMode == 2) return 'P0113';
+    if (ectFaultMode == 1) return 'P0117';
+    if (ectFaultMode == 2) return 'P0118';
 
     return '';
   }
 
   static String getSensorFaultLabel({
+
     required bool ckpFault,
     required bool cmpFault,
+
     required bool appFault,
-    required bool mapFault,
-    required bool iatFault,
-    required bool ectFault,
-    required bool oilTempFault,
-    required bool fuelPumpFault,
+
+    required int mapFaultMode,
+    required int iatFaultMode,
+    required int ectFaultMode,
+
   }) {
 
     if (ckpFault) {
-      return 'Lỗi cảm biến CKP';
+      return 'Lỗi cảm biến vị trí trục khuỷu (CKP)';
     }
 
     if (cmpFault) {
-      return 'Lỗi cảm biến CMP';
+      return 'Lỗi cảm biến vị trí trục cam (CMP)';
     }
 
     if (appFault) {
       return 'Lỗi cảm biến bàn đạp ga';
     }
 
-    if (mapFault) {
+    if (mapFaultMode == 1) {
       return 'Lỗi cảm biến MAP';
     }
 
-    if (iatFault) {
+    if (mapFaultMode == 2) {
+      return 'Lỗi cảm biến MAP';
+    }
+
+    if (iatFaultMode == 1) {
       return 'Lỗi cảm biến nhiệt độ khí nạp';
     }
 
-    if (ectFault) {
+    if (iatFaultMode == 2) {
+      return 'Lỗi cảm biến nhiệt độ khí nạp';
+    }
+
+    if (ectFaultMode == 1) {
       return 'Lỗi cảm biến nhiệt độ nước làm mát';
     }
 
-    if (oilTempFault) {
-      return 'Lỗi cảm biến nhiệt độ dầu';
-    }
-
-    if (fuelPumpFault) {
-      return 'Lỗi bơm nhiên liệu';
+    if (ectFaultMode == 2) {
+      return 'Lỗi cảm biến nhiệt độ nước làm mát';
     }
 
     return '';
@@ -86,11 +90,9 @@ class EngineFaults {
     required bool ckpFault,
     required bool cmpFault,
     required bool appFault,
-    required bool mapFault,
-    required bool iatFault,
-    required bool ectFault,
-    required bool oilTempFault,
-    required bool fuelPumpFault,
+    required int mapFaultMode,
+    required int iatFaultMode,
+    required int ectFaultMode,
   }) {
 
     if (ckpFault) {
@@ -105,24 +107,28 @@ class EngineFaults {
       return 'Tương quan cảm biến vị trí bàn đạp ga';
     }
 
-    if (mapFault) {
-      return 'Tín hiệu cảm biến áp suất đường ống nạp thấp';
+    if (mapFaultMode == 1) {
+      return 'Mạch áp suất tuyệt đối đường ống nạp thấp';
     }
 
-    if (iatFault) {
-      return 'Tín hiệu cảm biến nhiệt độ khí nạp cao';
+    if (mapFaultMode == 2) {
+      return 'Mạch áp suất tuyệt đối đường ống nạp cao';
     }
 
-    if (ectFault) {
-      return 'Tín hiệu cảm biến nhiệt độ nước làm mát cao';
+    if (iatFaultMode == 1) {
+      return 'Mạch cảm biến nhiệt độ khí nạp 1 thấp';
     }
 
-    if (oilTempFault) {
-      return 'Mạch cảm biến nhiệt độ dầu động cơ';
+    if (iatFaultMode == 2) {
+      return 'Mạch cảm biến nhiệt độ khí nạp 1 cao';
     }
 
-    if (fuelPumpFault) {
-      return 'Mạch điều khiển sơ cấp bơm nhiên liệu';
+    if (ectFaultMode == 1) {
+      return 'Mạch cảm biến nhiệt độ nước làm mát động cơ 1 thấp';
+    }
+
+    if (ectFaultMode == 2) {
+      return 'Mạch cảm biến nhiệt độ nước làm mát động cơ 1 cao';
     }
 
     return '';
@@ -138,72 +144,46 @@ class EngineFaults {
     required int cmpFaultMode,
     required bool cmpFault,
     required bool appFault,
-    required bool mapFault,
-    required bool iatFault,
-    required bool ectFault,
-    required bool oilTempFault,
-    required bool fuelPumpFault,
+    required int mapFaultMode,
+    required int iatFaultMode,
+    required int ectFaultMode,
   }) {
 
     if (ckpFaultMode == 1) {
-      return 'Động cơ chết máy, mất tín hiệu CKP';
+      return 'Động cơ không khởi động hoặc chết máy';
     }
 
     if (ckpFaultMode == 2) {
       return 'RPM dao động, khó khởi động';
     }
 
-    if (ckpFaultMode == 3) {
-      return 'Tín hiệu CKP yếu, khó nổ';
-    }
-
-    if (ckpFaultMode == 4) {
-      return 'RPM tăng bất thường, đánh lửa sai';
-    }
-
-    if (ckpFaultMode == 5) {
-      return 'Động cơ rung giật ngẫu nhiên';
-    }
-
 
     if (cmpFaultMode == 1) {
-      return 'Động cơ rung nhẹ, sai đồng bộ CMP';
-    }
-
-    if (cmpFaultMode == 2) {
-      return 'Đánh lửa sai thời điểm nhẹ';
-    }
-
-    if (cmpFaultMode == 3) {
-      return 'Tín hiệu CMP yếu, hụt ga';
-    }
-
-    if (cmpFaultMode == 4) {
-      return 'Động cơ rung giật ngẫu nhiên';
+      return 'Khó khởi động, động cơ rung giật';
     }
 
     if (appFault) {
       return 'Động cơ giới hạn bướm ga';
     }
 
-    if (mapFault) {
+    if (mapFaultMode == 1 || mapFaultMode == 2) {
       return 'Động cơ giảm công suất';
     }
 
-    if (iatFault) {
+    if (iatFaultMode == 1) {
+      return 'Động cơ hoạt động không ổn định';
+    }
+
+    if (iatFaultMode == 2) {
       return 'Động cơ hao nhiên liệu';
     }
 
-    if (ectFault) {
+    if (ectFaultMode == 1) {
+      return 'Quạt làm mát hoạt động bất thường';
+    }
+
+    if (ectFaultMode == 2) {
       return 'Quạt làm mát hoạt động liên tục';
-    }
-
-    if (oilTempFault) {
-      return 'Hiển thị nhiệt độ dầu bất thường';
-    }
-
-    if (fuelPumpFault) {
-      return 'Động cơ hụt ga hoặc chết máy';
     }
 
     return '';
@@ -217,11 +197,9 @@ class EngineFaults {
     required int ckpFaultMode,
     required int cmpFaultMode,
     required bool appFault,
-    required bool mapFault,
-    required bool iatFault,
-    required bool ectFault,
-    required bool oilTempFault,
-    required bool fuelPumpFault,
+    required int mapFaultMode,
+    required int iatFaultMode,
+    required int ectFaultMode,
   }) {
 
     // CKP
@@ -233,33 +211,9 @@ class EngineFaults {
       return 'Sai khoảng răng hoặc nhiễu tín hiệu CKP';
     }
 
-    if (ckpFaultMode == 3) {
-      return 'Điện áp CKP thấp';
-    }
-
-    if (ckpFaultMode == 4) {
-      return 'Điện áp CKP cao';
-    }
-
-    if (ckpFaultMode == 5) {
-      return 'Tín hiệu CKP chập chờn';
-    }
-
     // CMP
     if (cmpFaultMode == 1) {
       return 'Mất tín hiệu CMP';
-    }
-
-    if (cmpFaultMode == 2) {
-      return 'Sai đồng bộ CMP';
-    }
-
-    if (cmpFaultMode == 3) {
-      return 'Điện áp CMP thấp';
-    }
-
-    if (cmpFaultMode == 4) {
-      return 'Tín hiệu CMP không ổn định';
     }
 
     // APP
@@ -268,28 +222,30 @@ class EngineFaults {
     }
 
     // MAP
-    if (mapFault) {
-      return 'Điện áp MAP thấp';
+    if (mapFaultMode == 1) {
+      return 'Điện áp đầu ra của mạch tín hiệu cảm biến MAP thấp hơn giá trị quy định trong thời gian quy định.';
     }
 
-    // IAT
-    if (iatFault) {
-      return 'Điện áp cảm biến IAT cao';
+    if (mapFaultMode == 2) {
+      return 'Điện áp đầu ra của mạch tín hiệu cảm biến MAP cao hơn giá trị quy định trong thời gian quy định.';
     }
 
-    // ECT
-    if (ectFault) {
-      return 'Điện áp ECT cao';
+// IAT
+    if (iatFaultMode == 1) {
+      return 'Điện áp đầu ra mạch tín hiệu cảm biến IAT thấp hơn 0,04 V trong 10 giây.';
     }
 
-    // Oil temp
-    if (oilTempFault) {
-      return 'Lỗi mạch cảm biến nhiệt độ dầu';
+    if (iatFaultMode == 2) {
+      return 'Điện áp đầu ra mạch tín hiệu cảm biến IAT cao hơn 4,9 V trong 10 giây';
     }
 
-    // Fuel pump
-    if (fuelPumpFault) {
-      return 'Mất điều khiển bơm nhiên liệu';
+// ECT
+    if (ectFaultMode == 1) {
+      return 'Điện áp đầu ra mạch tín hiệu cảm biến ECT thấp hơn 0,02 V trong 5 giây';
+    }
+
+    if (ectFaultMode == 2) {
+      return 'Điện áp đầu ra mạch tín hiệu cảm biến ECT cao hơn 4,9 V trong 5 giây';
     }
 
     return '';
@@ -500,15 +456,15 @@ class EngineFaults {
           coilFaultModes[cyl] ?? 0;
 
       if (mode == 1) {
-        return 'Hở mạch bobin $cyl';
+        return 'Mạch sơ cấp bobin $cyl hở';
       }
 
       if (mode == 2) {
-        return 'Bobin $cyl tín hiệu thấp';
+        return 'Mạch sơ cấp bobin $cyl thấp';
       }
 
       if (mode == 3) {
-        return 'Bobin $cyl tín hiệu cao';
+        return 'Mạch sơ cấp bobin $cyl cao';
       }
     }
 

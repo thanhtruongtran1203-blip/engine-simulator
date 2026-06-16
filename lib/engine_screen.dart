@@ -264,8 +264,8 @@
                 // delay phản hồi ga
                 rpm += (targetRPM - rpm) * 0.03;
               }
-  
-              if (faultController.mapFault) {
+
+              if (faultController.mapFaultMode != 0) {
   
                 // giới hạn công suất turbo
                 if (targetRPM > 3200) {
@@ -277,10 +277,9 @@
                   DateTime.now().millisecondsSinceEpoch / 180,
                 ) * 12;
               }
-  
-              if (faultController.iatFault) {
-  
-                // nóng khí nạp -> ECU giảm hiệu suất
+
+              if (faultController.mapFault) {
+
                 if (targetRPM > 4000) {
                   targetRPM = 4000;
                 }
@@ -290,33 +289,7 @@
                   DateTime.now().millisecondsSinceEpoch / 220,
                 ) * 8;
               }
-              if (faultController.oilTempFault) {
-  
-                // ECU fallback mode
-                rpm += sin(
-                  DateTime.now().millisecondsSinceEpoch / 220,
-                ) * 5;
-  
-                // phản hồi ga chậm nhẹ
-                rpm += (targetRPM - rpm) * 0.02;
-              }
-              if (faultController.fuelPumpFault) {
-  
-                // hụt ga
-                rpm -= _rand.nextDouble() * 20;
-  
-                // rung máy
-                rpm += sin(
-                  DateTime.now().millisecondsSinceEpoch / 90,
-                ) * 15;
-  
-                // giới hạn rpm
-                if (targetRPM > 3500) {
-                  targetRPM = 3500;
-                }
-              }
-  
-  
+
               final visualRpm =
                   currentRpm * 0.08;
   
@@ -360,30 +333,6 @@
               rpm += sin(
                 DateTime.now().millisecondsSinceEpoch / 120,
               ) * 80;
-            }
-  
-            // P0337
-            if (faultController.ckpFaultMode == 3) {
-  
-              rpm *= 0.96;
-  
-              rpm += sin(
-                DateTime.now().millisecondsSinceEpoch / 140,
-              ) * 20;
-            }
-  
-            // P0338
-            if (faultController.ckpFaultMode == 4) {
-  
-              rpm += _rand.nextDouble() * 120;
-            }
-  
-            // P0339
-            if (faultController.ckpFaultMode == 5) {
-  
-              if (_rand.nextDouble() < 0.08) {
-                rpm -= 120;
-              }
             }
   
             if (faultController.ckpFaultMode == 1 && rpm < 250) {
@@ -531,6 +480,13 @@
       _lastInjectorTrigger[cyl] = now;
   
       if (faultController.ckpFaultMode == 1) return;
+
+      if (faultController.cmpFaultMode == 1) {
+
+        if (_rand.nextDouble() < 0.15) {
+          return;
+        }
+      }
   
       final mode =
           faultController.injectorFaultModes[cyl] ?? 0;
@@ -559,8 +515,7 @@
   
         rpm += _rand.nextDouble() * 25;
       }
-  
-      if (faultController.cmpGlitchActive(isRunning) && cyl.isEven) return;
+
   
       setState(() {
         injector = cyl;
@@ -579,6 +534,14 @@
       _lastSparkTrigger[cyl] = now;
   
       if (faultController.ckpFaultMode == 1) return;
+
+      // P0340 - mất CMP
+      if (faultController.cmpFaultMode == 1) {
+
+        if (_rand.nextDouble() < 0.15) {
+          return;
+        }
+      }
   
       final mode =
           faultController.coilFaultModes[cyl] ?? 0;
@@ -616,8 +579,6 @@
         rpm += _rand.nextDouble() * 40;
       }
   
-      if (faultController.cmpGlitchActive(isRunning) && cyl == 3) return;
-  
       final id = ++sparkPulseId;
   
       setState(() {
@@ -649,36 +610,6 @@
   
       if (faultController.appFault && _rand.nextDouble() < 0.08) {
         return;
-      }
-  
-      if (faultController.fuelPumpFault && _rand.nextDouble() < 0.10) {
-        return;
-      }
-  
-      if (faultController.ckpFaultMode == 4) {
-  
-        double failRate =
-        (rpm / 6000).clamp(0.2, 0.8);
-  
-        if (_rand.nextDouble() < failRate) {
-          return;
-        }
-      }
-  
-      // CMP P0341
-      if (faultController.cmpFaultMode == 2) {
-  
-        rpm += sin(
-          DateTime.now().millisecondsSinceEpoch / 150,
-        ) * 25;
-      }
-  
-      // CMP P0344
-      if (faultController.cmpFaultMode == 4) {
-  
-        if (_rand.nextDouble() < 0.05) {
-          rpm -= 80;
-        }
       }
   
       for (final entry in injectorStartAngle.entries) {
@@ -775,6 +706,7 @@
   
     @override
     Widget build(BuildContext context) {
+      final faults = faultController.allFaults;
       final w = MediaQuery.of(context).size.width;
       final double displayRPM =
       rpm.clamp(500, 6000);
@@ -1345,16 +1277,11 @@
             ),
             if (faultController.hasAnyFault)
               Positioned(
-                right: 212,
+                right: 221,
                 bottom: 462,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Icon(
-                      Icons.warning_amber_rounded,
-                      color: Colors.orangeAccent,
-                      size: 16,
-                    ),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -1372,75 +1299,161 @@
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-  
+
                           Text(
-                            faultController.currentFaultCode,
+                            'DTC: ${faultController.allFaults.length}',
                             style: const TextStyle(
-                              color: Colors.orangeAccent,
-                              fontSize: 10,
+                              color: Colors.redAccent,
+                              fontSize: 9,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-  
-                          const SizedBox(height: 2),
-  
-                          Text(
-                            faultController.currentFaultLabel,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-  
-                          const SizedBox(height: 2),
-  
+
+                          const SizedBox(height: 4),
+
                           SizedBox(
-                            width: 120,
-                            child: Text(
-                              faultController.currentFaultDescription,
-                              softWrap: true,
-                              maxLines: 2,
-                              overflow: TextOverflow.visible,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 7,
-                                height: 1.2,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-  
-                          SizedBox(
-                            width: 130,
-                            child: Text(
-                              'Nguyên nhân: $faultController.currentFaultCause',
-                              softWrap: true,
-                              maxLines: 2,
-                              overflow: TextOverflow.visible,
-                              style: const TextStyle(
-                                color: Colors.redAccent,
-                                fontSize: 6,
-                                height: 1.15,
-                              ),
-                            ),
-                          ),
-  
-                          const SizedBox(height: 2),
-  
-                          SizedBox(
-                            width: 130,
-                            child: Text(
-                              faultController.currentFaultSymptom,
-                              softWrap: true,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.orangeAccent,
-                                fontSize: 5.8,
-                                fontStyle: FontStyle.italic,
-                                height: 1.15,
-                              ),
+                            width: 112,
+                            height: 50,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.only(top: 10),
+                              itemCount:
+                              faultController.allFaults.length,
+
+                              itemBuilder: (context, index) {
+
+                                final fault =
+                                faultController.allFaults[index];
+
+                                return InkWell(
+
+                                  onTap: () {
+
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) {
+
+                                        return AlertDialog(
+
+                                          backgroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                            side: BorderSide(
+                                              color: Colors.white.withOpacity(0.3), // bạc nhẹ
+                                              width: 1.2,
+                                            ),
+                                          ),
+
+                                          title: Text(
+                                            fault.code,
+                                            style: const TextStyle(
+                                              color: Colors.orangeAccent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+
+                                            children: [
+
+                                              Text(
+                                                fault.label,
+                                                style: const TextStyle(
+                                                  color: Colors.orangeAccent,
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 8),
+
+                                              Text.rich(
+                                                TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: 'Mô tả:\n',
+                                                      style: const TextStyle(color: Colors.redAccent),
+                                                    ),
+                                                    TextSpan(
+                                                      text: fault.description,
+                                                      style: const TextStyle(color: Colors.white),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 8),
+
+                                              Text.rich(
+                                                TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: 'Nguyên nhân:\n',
+                                                      style: const TextStyle(color: Colors.redAccent),
+                                                    ),
+                                                    TextSpan(
+                                                      text: fault.cause,
+                                                      style: const TextStyle(color: Colors.white),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 8),
+
+                                              Text.rich(
+                                                TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: 'Triệu chứng:\n',
+                                                      style: const TextStyle(color: Colors.redAccent),
+                                                    ),
+                                                    TextSpan(
+                                                      text: fault.symptom,
+                                                      style: const TextStyle(color: Colors.white),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: 4,
+                                    ),
+
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+
+                                      children: [
+
+                                        Text(
+                                          fault.code,
+                                          style: const TextStyle(
+                                            color: Colors.orangeAccent,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+
+                                        Text(
+                                          fault.label,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 7,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
@@ -1929,40 +1942,6 @@
                 child: Container(
                   width: 20,
                   height: 40,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 520,
-              top: 390,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    faultController.toggleOilTempFault();
-                  });
-                },
-                child: Container(
-                  width: 20,
-                  height: 40,
-  
-                  // tạm thời để nhìn hitbox
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 140,
-              top: 330,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    faultController.toggleFuelPumpFault();
-                  });
-                },
-                child: Container(
-                  width: 60,
-                  height: 60,
                   color: Colors.transparent,
                 ),
               ),
