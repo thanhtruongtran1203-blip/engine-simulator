@@ -758,20 +758,6 @@
                 ),
               ),
             ),
-            const Positioned(
-              top: 40,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Text(
-                  'MÔ PHỎNG HOẠT ĐỘNG CỦA ĐỘNG CƠ',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
             Positioned(
               top: 250,
               right: 70,
@@ -867,7 +853,7 @@
             ),
             const Positioned(
               top: 100,
-              right: 615,
+              right: 800,
               child: Center(
                 child: Text(
                   'Hệ thống phun xăng điện tử',
@@ -881,9 +867,9 @@
               ),
             ),
             const Positioned(
-              top: 258,
+              top: 298,
               left: 0,
-              right: 1030,
+              right: 1245,
               child: Center(
                 child: Text(
                   'Van \nđiều khiển',
@@ -897,9 +883,9 @@
               ),
             ),
             const Positioned(
-              top: 145,
-              left: 0,
-              right: 425,
+              top: 155,
+              left: 5,
+              right: 515,
               child: Center(
                 child: Text(
                   'Bộ điều áp\nnhiên liệu',
@@ -913,9 +899,9 @@
               ),
             ),
             const Positioned(
-              top: 170,
+              top: 200,
               left: 0,
-              right: 280,
+              right: 360,
               child: Center(
                 child: Text(
                   'Ống chân không từ\n  phía sau cổ hút',
@@ -928,8 +914,8 @@
               ),
             ),
             const Positioned(
-              top: 200,
-              left: 65,
+              top: 230,
+              left: 45,
               right: 90,
               child: Center(
                 child: Text(
@@ -944,9 +930,9 @@
               ),
             ),
             const Positioned(
-              top: 235,
+              top: 275,
               left: 0,
-              right: 100,
+              right: 130,
               child: Center(
                 child: Text(
                   'Kim phun',
@@ -959,9 +945,8 @@
               ),
             ),
             const Positioned(
-              top: 252,
-              left: 35,
-              right: 700,
+              top: 302,
+              right: 1080,
               child: Center(
                 child: Text(
                   'Lọc\nxăng',
@@ -975,9 +960,9 @@
               ),
             ),
             const Positioned(
-              top: 300,
+              top: 350,
               left: 0,
-              right: 920,
+              right: 1130,
               child: Center(
                 child: Text(
                   'Bình than\nhoạt tính',
@@ -991,7 +976,7 @@
               ),
             ),
             const Positioned(
-              top: 355,
+              top: 475,
               left: 0,
               right: 1040,
               child: Center(
@@ -1006,9 +991,9 @@
               ),
             ),
             const Positioned(
-              top: 365,
+              top: 425,
               left: 0,
-              right: 662,
+              right: 792,
               child: Center(
                 child: Text(
                   'ECU',
@@ -1021,9 +1006,9 @@
               ),
             ),
             const Positioned(
-              top: 400,
+              top: 360,
               left: 0,
-              right: 760,
+              right: 870,
               child: Center(
                 child: Text(
                   '    Bơm \nxăng điện',
@@ -1036,9 +1021,8 @@
               ),
             ),
             const Positioned(
-              top: 506,
-              left: 0,
-              right: 720,
+              top: 604,
+              right: 1040,
               child: Center(
                 child: Text(
                   'Đường nhiên liệu áp suất cao',
@@ -1051,9 +1035,8 @@
               ),
             ),
             const Positioned(
-              top: 526,
-              left: 0,
-              right: 770,
+              top: 625,
+              right: 1085,
               child: Center(
                 child: Text(
                   'Đường hồi nhiên liệu',
@@ -1066,9 +1049,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
+              top: 505,
               left: 5,
-              right: 518,
+              right: 633,
               child: Center(
                 child: Text(
                   'A',
@@ -1081,9 +1064,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
+              top: 505,
               left: 5,
-              right: 438,
+              right: 536,
               child: Center(
                 child: Text(
                   'B',
@@ -1096,9 +1079,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
+              top: 505,
               left: 5,
-              right: 348,
+              right: 420,
               child: Center(
                 child: Text(
                   'C',
@@ -1111,9 +1094,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
+              top: 505,
               left: 5,
-              right: 258,
+              right: 318,
               child: Center(
                 child: Text(
                   'D',
@@ -1126,9 +1109,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
+              top: 505,
               left: 5,
-              right: 188,
+              right: 230,
               child: Center(
                 child: Text(
                   'E',
@@ -1141,9 +1124,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
+              top: 505,
               left: 5,
-              right: 118,
+              right: 140,
               child: Center(
                 child: Text(
                   'F',
@@ -1156,9 +1139,9 @@
               ),
             ),
             const Positioned(
-              top: 425,
-              left: 5,
-              right: 46,
+              top: 505,
+              left: 0,
+              right: 50,
               child: Center(
                 child: Text(
                   'G',
@@ -1171,9 +1154,9 @@
               ),
             ),
             const Positioned(
-              top: 460,
+              top: 540,
               left: 0,
-              right: 300,
+              right: 410,
               child: Center(
                 child: Text(
                   'A. Cảm biến vị trí/tốc độ trục khuỷu\nB. Cảm biến vị trí trục cam\nC. Cảm biến bàn đạp ga/phanh/tốc độ xe\nD. Cảm biến áp suất đường ống nạp (MAP)\nE. Cảm biến nhiệt độ khí nạp\nF. Cảm biến nhiệt độ nước làm mát\nG. Cảm biến nhiệt độ dầu',
@@ -1186,18 +1169,18 @@
               ),
             ),
             Positioned(
-              left: 705,
+              left: 895,
               bottom: 52,
               child: SizedBox(
-                width: 50,
-                height: 50,
+                width: 70,
+                height: 70,
                 child: RpmGauge(rpm: displayRPM),
               ),
             ),
             if (faultController.hasAnyFault)
               Positioned(
-                left: 760,
-                bottom: 30,
+                left: 942,
+                bottom: 22,
                 child: AnimatedBuilder(
                   animation: electricController,
                   builder: (context, child) {
@@ -1210,83 +1193,84 @@
                   },
                   child: Image.asset(
                     'assets/images/engine_fault.png',
-                    width: 28,
-                    height: 28,
+                    width: 40,
+                    height: 40,
                     fit: BoxFit.contain,
                   ),
                 ),
               ),
             Positioned(
-              left: 845,
-              bottom: 50,
-              child: Image.asset(
-                'assets/images/fuel.png',
-                width: 28,
-                height: 28,
-                fit: BoxFit.contain,
-              ),
-            ),
-            Positioned(
-              left: 735,
-              bottom: 30,
+              left: 915,
+              bottom: 23,
               child: Image.asset(
                 'assets/images/brake.png',
-                width: 28,
-                height: 28,
+                width: 38,
+                height: 38,
                 fit: BoxFit.contain,
               ),
             ),
             Positioned(
-              left: 782,
-              bottom: 30,
+              left: 965,
+              bottom: 18,
               child: Image.asset(
                 'assets/images/seatbelt.png',
-                width: 28,
-                height: 28,
+                width: 43,
+                height: 43,
                 fit: BoxFit.contain,
               ),
             ),
             Positioned(
-              left: 800,
-              bottom: 30,
+              left: 990,
+              bottom: 20,
               child: Image.asset(
                 'assets/images/cool_water.png',
-                width: 28,
-                height: 28,
+                width: 40,
+                height: 40,
                 fit: BoxFit.contain,
               ),
             ),
             Positioned(
-              left: 720,
-              bottom: 430,
+              left:900,
+              bottom: 490,
               child: Image.asset(
                 'assets/images/obd_device.png',
-                width: 190,
-                height: 170,
+                width: 250,
+                height: 200,
                 fit: BoxFit.contain,
               ),
             ),
             Positioned(
-              left: 755,
+              left: 500,
+              bottom: 540,
+              child: Image.asset(
+                'assets/images/FAST.png',
+                
+                width: 380,
+                height: 320,
+                fit: BoxFit.contain,
+              ),
+            ),
+            Positioned(
+              left: 965,
               bottom: 50,
               child: SizedBox(
-                width: 100,
-                height: 100,
+                width: 120,
+                height: 120,
                 child: SpeedGauge(speed: displayRPM / 40),
               ),
             ),
             if (faultController.hasAnyFault)
               Positioned(
-                right: 221,
-                bottom: 462,
+                right: 251,
+                bottom: 532,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 3,
+                        horizontal: 14,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.75),
@@ -1304,7 +1288,7 @@
                             'DTC: ${faultController.allFaults.length}',
                             style: const TextStyle(
                               color: Colors.redAccent,
-                              fontSize: 9,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1466,8 +1450,8 @@
               right: 205,
               bottom: 58,
               child: SizedBox(
-                width: 30,
-                height: 30,
+                width: 50,
+                height: 50,
                 child: FittedBox(
                   fit: BoxFit.contain,
                   child: const FuelGauge(value: 100),
@@ -1475,24 +1459,27 @@
               ),
             ),
             Positioned(
-              bottom: 60,
-              right: 880,
-              child: EngineStartButton(
-                isRunning: isRunning,
-                onStart: startEngine,
-                onStop: stopEngine,
+              bottom: 40,
+              right: 900,
+              child: Transform.scale(
+                scale: 1.2, // Phóng to 1.5 lần
+                child: EngineStartButton(
+                  isRunning: isRunning,
+                  onStart: startEngine,
+                  onStop: stopEngine,
+                ),
               ),
             ),
             Positioned(
-              bottom: 70,
+              bottom: 50,
               right: 800,
               child: SizedBox(
-                height: 28,
+                height: 30,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                    minimumSize: const Size(60, 28),
+                    minimumSize: const Size(80, 35),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () async {
@@ -1512,7 +1499,7 @@
                   },
                   child: Text(
                     stm32Port != null ? 'CONNECTED' : 'CONNECT',
-                    style: const TextStyle(fontSize: 8),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ),
               ),
@@ -1536,20 +1523,20 @@
                     return Stack(
                       children: [
                         Positioned(
-                          left: 235,
-                          bottom: 315,
+                          left: 300,
+                          bottom: 345,
                           child: CustomPaint(
-                            size: const Size(100, 135),
+                            size: const Size(100, 165),
                             painter: ElectricPathPainterCustom(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 164,
-                          bottom: 315,
+                          left: 202,
+                          bottom: 318,
                           child: CustomPaint(
-                            size: const Size(10, 130),
+                            size: const Size(10, 170),
                             painter: ElectricPathPainterCustom1(
                               electricController.value,
                               rpm,
@@ -1557,10 +1544,10 @@
                           ),
                         ),
                         Positioned(
-                          left: 140,
+                          left: 190,
                           bottom: 320,
                           child: CustomPaint(
-                            size: const Size(10,-10),
+                            size: const Size(30,52),
                             painter: ElectricPathPainterCustom2(
                               electricController.value,
                               rpm,
@@ -1568,98 +1555,98 @@
                           ),
                         ),
                         Positioned(
-                          left: 203,
-                          bottom: 211,
+                          left: 250,
+                          bottom: 197,
                           child: CustomPaint(
-                            size: const Size(67, 85),
+                            size: const Size(79, 100),
                             painter: ElectricPathPainter1(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 263,
-                          bottom: 280,
-                          child: CustomPaint(
-                            size: const Size(100, 50),
-                            painter: ElectricPathPainter2(
-                              electricController.value,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 302,
-                          bottom: 280,
-                          child: CustomPaint(
-                            size: const Size(100, 50),
-                            painter: ElectricPathPainter2(
-                              electricController.value,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 333,
+                          left: 334,
                           bottom: 285,
                           child: CustomPaint(
-                            size: const Size(100, 45),
+                            size: const Size(100, 55),
                             painter: ElectricPathPainter2(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 385,
+                          left: 382,
                           bottom: 285,
                           child: CustomPaint(
-                            size: const Size(100, 45),
+                            size: const Size(100, 55),
                             painter: ElectricPathPainter2(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 409,
-                          bottom: 302,
+                          left: 418,
+                          bottom: 285,
                           child: CustomPaint(
-                            size: const Size(100, 25),
+                            size: const Size(100, 55),
+                            painter: ElectricPathPainter2(
+                              electricController.value,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 482,
+                          bottom: 285,
+                          child: CustomPaint(
+                            size: const Size(100, 55),
+                            painter: ElectricPathPainter2(
+                              electricController.value,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 512,
+                          bottom: 308,
+                          child: CustomPaint(
+                            size: const Size(100, 30),
                             painter: ElectricPathPainter3(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 442,
-                          bottom: 302,
+                          left: 554,
+                          bottom: 308,
                           child: CustomPaint(
-                            size: const Size(100, 25),
+                            size: const Size(100, 30),
                             painter: ElectricPathPainter3(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 479,
-                          bottom: 302,
+                          left: 597,
+                          bottom: 308,
                           child: CustomPaint(
-                            size: const Size(100, 25),
+                            size: const Size(100, 30),
                             painter: ElectricPathPainter3(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 272,
-                          bottom: 271,
+                          left: 337,
+                          bottom: 280,
                           child: CustomPaint(
-                            size: const Size(267, 100),
+                            size: const Size(320, 100),
                             painter: ElectricPathPainter4(
                               electricController.value,
                             ),
                           ),
                         ),
                         Positioned(
-                          left: 305,
-                          bottom: 375,
+                          left: 378,
+                          bottom: 405,
                           child: SizedBox(
                             width: 36,
                             height: 46,
@@ -1687,8 +1674,8 @@
                           ),
                         ),
                         Positioned(
-                          left: 395,
-                          bottom: 375,
+                          left: 488,
+                          bottom: 405,
                           child: SizedBox(
                             width: 36,
                             height: 46,
@@ -1716,8 +1703,8 @@
                           ),
                         ),
                         Positioned(
-                          left: 440,
-                          bottom: 375,
+                          left: 543,
+                          bottom: 405,
                           child: SizedBox(
                             width: 36,
                             height: 46,
@@ -1745,8 +1732,8 @@
                           ),
                         ),
                         Positioned(
-                          left: 350,
-                          bottom: 375,
+                          left: 433,
+                          bottom: 405,
                           child: SizedBox(
                             width: 36,
                             height: 46,
@@ -1780,8 +1767,8 @@
               ),
             ),
             Positioned(
-              left: 305,
-              bottom: 425,
+              left: 365,
+              bottom: 465,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
@@ -1790,16 +1777,16 @@
                   });
                 },
                 child: Container(
-                  width: 36,
-                  height: 46,
+                  width: 40,
+                  height: 50,
                   color: Colors.transparent,
                 ),
               ),
             ),
   
             Positioned(
-              left: 345,
-              bottom: 425,
+              left: 425,
+              bottom: 465,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
@@ -1808,16 +1795,16 @@
                   });
                 },
                 child: Container(
-                  width: 36,
-                  height: 46,
+                  width: 40,
+                  height: 50,
                   color: Colors.transparent,
                 ),
               ),
             ),
   
             Positioned(
-              left: 385,
-              bottom: 425,
+              left: 480,
+              bottom: 465,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
@@ -1826,16 +1813,16 @@
                   });
                 },
                 child: Container(
-                  width: 36,
-                  height: 46,
+                  width: 40,
+                  height: 50,
                   color: Colors.transparent,
                 ),
               ),
             ),
   
             Positioned(
-              left: 425,
-              bottom: 425,
+              left: 535,
+              bottom: 465,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
@@ -1844,15 +1831,15 @@
                   });
                 },
                 child: Container(
-                  width: 36,
-                  height: 46,
+                  width: 40,
+                  height: 50,
                   color: Colors.transparent,
                 ),
               ),
             ),
             Positioned(
-              left: 270,
-              top: 390,
+              left: 345,
+              top: 450,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1867,8 +1854,8 @@
               ),
             ),
             Positioned(
-              left: 320,
-              top: 390,
+              left: 390,
+              top: 450,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1883,8 +1870,8 @@
               ),
             ),
             Positioned(
-              left: 360,
-              top: 390,
+              left: 445,
+              top: 450,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1899,8 +1886,8 @@
               ),
             ),
             Positioned(
-              left: 405,
-              top: 390,
+              left: 495,
+              top: 450,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1915,8 +1902,8 @@
               ),
             ),
             Positioned(
-              left: 450,
-              top: 390,
+              left: 552,
+              top: 440,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1925,14 +1912,14 @@
                 },
                 child: Container(
                   width: 20,
-                  height: 40,
+                  height: 60,
                   color: Colors.transparent,
                 ),
               ),
             ),
             Positioned(
-              left: 485,
-              top: 390,
+              left: 594,
+              top: 440,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1941,7 +1928,7 @@
                 },
                 child: Container(
                   width: 20,
-                  height: 40,
+                  height: 60,
                   color: Colors.transparent,
                 ),
               ),

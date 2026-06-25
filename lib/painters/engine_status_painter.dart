@@ -94,10 +94,10 @@ class EngineStatusPainter extends CustomPainter {
 
     final bgRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-        size.width - tp.width - 440,
-        size.height - tp.height + 130,
+        size.width - tp.width - 370,
+        size.height - tp.height + 200,
         tp.width + 12,
-        tp.height + 10,
+        tp.height + 25,
       ),
       const Radius.circular(6),
     );
@@ -112,13 +112,13 @@ class EngineStatusPainter extends CustomPainter {
       Paint()
         ..color = Colors.grey.withOpacity(0.4)
         ..style = PaintingStyle.stroke,
-    );
+      );
 
-    tp.paint(
+      tp.paint(
       canvas,
       Offset(
-        size.width - tp.width - 436,
-        size.height - tp.height + 134,
+        size.width - tp.width - 366,
+        size.height - tp.height + 210,
       ),
     );
   }

@@ -34,7 +34,7 @@ class RpmGauge extends StatelessWidget {
           ),
           axisLabelStyle: const GaugeTextStyle(
             color: Colors.white,
-            fontSize: 4,
+            fontSize: 7,
           ),
           ranges: [
             GaugeRange(
@@ -64,7 +64,7 @@ class RpmGauge extends StatelessWidget {
                 'RPMx1000',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 4,
+                  fontSize: 7,
                 ),
               ),
               angle: 90,
@@ -110,7 +110,7 @@ class SpeedGauge extends StatelessWidget {
           ),
           axisLabelStyle: const GaugeTextStyle(
             color: Colors.white,
-            fontSize: 6,
+            fontSize: 8,
           ),
           ranges: [
             GaugeRange(
@@ -135,7 +135,7 @@ class SpeedGauge extends StatelessWidget {
             GaugeAnnotation(
               widget: Text(
                 'KM/H',
-                style: TextStyle(color: Colors.white, fontSize: 8),
+                style: TextStyle(color: Colors.white, fontSize: 10),
               ),
               angle: 90,
               positionFactor: 0.9,

@@ -284,10 +284,10 @@ class ElectricPathPainterCustom extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     double centerX = size.width / 2;
-    double topY = -11;
-    double bottomY = size.height - 20;
+    double topY = 10;
+    double bottomY = size.height - 5;
 
-    double horizontalTop = 172;
+    double horizontalTop = 180;
     double horizontalBottom = 10;
 
     /// PATH
@@ -368,7 +368,7 @@ class ElectricPathPainterCustom1 extends CustomPainter {
     double topY = -30;
     double bottomY = size.height - 20;
 
-    double horizontalTop = 109;
+    double horizontalTop = 129;
     double horizontalBottom = 0;
 
     Path path = Path()
@@ -475,11 +475,11 @@ class ElectricPathPainterCustom2 extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    double startX = 179;
+    double startX = 197;
     double startY = -187;
 
-    double leftX = 0;
-    double bottomY = size.height - 10;
+    double leftX = -20;
+    double bottomY = size.height - 20;
 
     /// PATH chữ L
     final path = Path()
