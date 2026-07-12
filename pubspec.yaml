@@ -98,6 +98,7 @@ flutter:
     - assets/images/vnuhcm.png
     - assets/images/bk.png
     - assets/images/FAST.png
+    - assets/images/Logo-BK-HoChiMinh.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

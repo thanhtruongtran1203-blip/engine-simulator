@@ -2,10 +2,8 @@
   import 'dart:io';
   import 'dart:math';
   import 'dart:typed_data';
-  
   import 'package:flutter/material.dart';
   import 'package:usb_serial/usb_serial.dart';
-  
   import 'engine_3d_screen.dart';
   import 'painters/electric_path_painters.dart';
   import 'painters/injector_painters.dart';
@@ -1240,13 +1238,12 @@
               ),
             ),
             Positioned(
-              left: 500,
-              bottom: 540,
+              left: 600,
+              bottom: 640,
               child: Image.asset(
                 'assets/images/FAST.png',
-                
-                width: 380,
-                height: 320,
+                width: 400,
+                height: 200,
                 fit: BoxFit.contain,
               ),
             ),
